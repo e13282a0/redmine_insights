@@ -6,9 +6,9 @@ class PerformanceController < ApplicationController
   end
 
   def project
+    Rails.logger.error "params inspection: #{params.inspect}"
+    @project_id = params['project_id']
     #@project = Project.find(params[:project_id])
-    @project = :project_id
-
   end
 
 end

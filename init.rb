@@ -7,6 +7,6 @@ Redmine::Plugin.register :redmine_performance_charts do
   author_url 'http://example.com/about'
   menu :application_menu, :performance, { controller: 'performance', action: 'index' }, caption: 'Performance'
   #permission :performancedetail, { performance_charts: [:index ] }, public: true
-  permission :performancedetail, { :performance => [:index, :vote] }, :public => true
-  menu :project_menu, :performancedetail, { controller: 'performance', action: 'index' }, caption: 'Performance', :param => :project_id
+  permission :performance, { :performance => [:index, :project] }, :public => true
+  menu :project_menu, :performance, { controller: 'performance', action: 'project' }, caption: 'Performance', :param => :project_id
 end

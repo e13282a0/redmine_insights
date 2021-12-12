@@ -15,6 +15,8 @@ class PerformanceController < ApplicationController
     @time_entries = TimeEntry.where( :project_id => @project.id)
     Rails.logger.info "@time_entries: #{@time_entries.inspect}"
 
+    
+
   end
 
 end

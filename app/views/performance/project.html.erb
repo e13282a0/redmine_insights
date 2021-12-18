@@ -5,6 +5,7 @@
   <%= stylesheet_link_tag "insight.min.css", :plugin => 'redmine_performance_charts', :media => "screen" %>
 <% end %>
 
+
 <h2>PerformanceController#project</h2>
 <div id="areaChart"> </div>
 <hr />
@@ -16,10 +17,12 @@
 <hr />
 <%= @time_entries %>
 
-
-
-
 <script type="text/javascript">
+
+let weeks=50;
+let data = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
+debugger;
+
 var chart = bb.generate({
   data: {
     columns: [

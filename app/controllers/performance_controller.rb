@@ -35,8 +35,5 @@ class PerformanceController < ApplicationController
 
     @time_entries = timeEntries.to_a()
 
-    
-
   end
-
 end

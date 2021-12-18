@@ -1,8 +1,36 @@
+<% content_for :header_tags do %>
+  <%= javascript_include_tag "d3.v4.min.js", :plugin => 'redmine_performance_charts'%> 
+  <%= javascript_include_tag "billboard.min.js", :plugin => 'redmine_performance_charts'%>
+  <%= javascript_include_tag "vue.min.js", :plugin => 'redmine_performance_charts'%>
+  <%= stylesheet_link_tag "insight.min.css", :plugin => 'redmine_performance_charts', :media => "screen" %>
+<% end %>
+
 <h2>PerformanceController#project</h2>
+<div id="areaChart"> </div>
+<hr />
 <%= @project.id %>
-<hr>
+<hr />
 <%= @issues %>
-<hr>
+<hr />
 <%= @users %>
-<hr>
+<hr />
 <%= @time_entries %>
+
+
+
+
+<script type="text/javascript">
+var chart = bb.generate({
+  data: {
+    columns: [
+	["data1", 300, 350, 300, 0, 0, 0],
+	["data2", 130, 100, 140, 200, 150, 50]
+    ],
+    types: {
+      data1: "area", // for ESM specify as: area()
+      data2: "area-spline" // for ESM specify as: areaSpline()
+    }
+  },
+  bindto: "#areaChart"
+});
+</script>

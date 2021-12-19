@@ -1,7 +1,8 @@
 <% content_for :header_tags do %>
-  <%= javascript_include_tag "d3.v4.min.js", :plugin => 'redmine_performance_charts'%> 
+  <%= javascript_include_tag "d3.v4.min.js", :plugin => 'redmine_performance_charts'%>
   <%= javascript_include_tag "billboard.min.js", :plugin => 'redmine_performance_charts'%>
-  <%= javascript_include_tag "vue.min.js", :plugin => 'redmine_performance_charts'%>
+  <%= javascript_include_tag "moment.min.js", :plugin => 'redmine_performance_charts'%>
+  <!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_performance_charts'%>-->
   <%= stylesheet_link_tag "insight.min.css", :plugin => 'redmine_performance_charts', :media => "screen" %>
 <% end %>
 
@@ -20,8 +21,10 @@
 <script type="text/javascript">
 
 let weeks=50;
-let data = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
-debugger;
+let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
+let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
+let users = JSON.parse('<%= @users.to_json.html_safe() %>');
+//debugger;
 
 var chart = bb.generate({
   data: {

@@ -26,16 +26,45 @@ let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
 let users = JSON.parse('<%= @users.to_json.html_safe() %>');
 //debugger;
 
+function getTimeBeam()  {
+    let result=[];
+    let runningDate = moment();
+    for (let i=0; i<=52; i++) {
+        result.push({'week':runningDate.week(), 'year':runningDate.year()})
+        runningDate = runningDate.subtract(7, "days");
+    }
+    return result;
+}
+
+let topLevelIssues=issues.filter((issue)=>{return issue.isTopLevel});
+let colums=[];
+let types={};
+let groups=[];
+let timeBeam = getTimeBeam();
+topLevelIssues.forEach(function(issue) {
+    types[issue.subject] ="area-spline";
+    groups.push(issue.subject);
+
+});
+
+debugger;
+
 var chart = bb.generate({
   data: {
     columns: [
-	["data1", 300, 350, 300, 0, 0, 0],
+	["data1", 300, 350, 300, 0, 0, 120],
 	["data2", 130, 100, 140, 200, 150, 50]
     ],
     types: {
-      data1: "area", // for ESM specify as: area()
-      data2: "area-spline" // for ESM specify as: areaSpline()
-    }
+      data1: "area-spline", // for ESM specify as: areaSpline()
+      data2: "area-spline", // for ESM specify as: areaSpline()
+    },
+    groups: [
+      [
+        "data1",
+        "data2"
+      ]
+    ]
   },
   bindto: "#areaChart"
 });

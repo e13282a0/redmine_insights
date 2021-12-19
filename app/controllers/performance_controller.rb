@@ -24,11 +24,11 @@ class PerformanceController < ApplicationController
       relatedIDs = issue.self_and_descendants.pluck(:id).to_a() # get own and all related issue IDs
       relatedTimeEntries = timeEntries.where(:issue_id => relatedIDs)
       relatedTimeEntries.each do |timeEntry|
-        @time_entries.push({'topLevelID'=>issue.id, 'issueID'=>timeEntry.issue_id, 'userID'=>timeEntry.user_id, 'hours'=>timeEntry.hours, 'comments'=>timeEntry.comments, 'spentOn'=>timeEntry.spent_on, 'tWeek'=>timeEntry.tweek, 'tYear'=>timeEntry.tyear})
+        @time_entries.push({'topLevelID'=>issue.id, 'issueID'=>timeEntry.issue_id, 'userID'=>timeEntry.user_id, 'hours'=>timeEntry.hours, 'comments'=>timeEntry.comments, 'spentOn'=>timeEntry.spent_on, 'week'=>timeEntry.tweek, 'year'=>timeEntry.tyear})
       end
     end
 
-    # read issues
+    #issues
     issues = Issue.where( :project_id => @project.id).to_a()
     @issues = issues.map{ |issue| {'issueID'=>issue.id, 'isTopLevel'=>issue.parent_id.nil?,'subject'=> issue.subject, 'tracker' => issue.tracker, 'startDate'=>issue.start_date, 'dueDate'=>issue.due_date, 'estimatedHours'=>issue.estimated_hours, 'closedOn'=>issue.closed_on}}
 

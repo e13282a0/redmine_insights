@@ -1,14 +1,11 @@
-<% content_for :header_tags do %>
-  <%= javascript_include_tag "d3.v4.min.js", :plugin => 'redmine_performance_charts'%>
-  <%= javascript_include_tag "billboard.min.js", :plugin => 'redmine_performance_charts'%>
-  <%= javascript_include_tag "moment.min.js", :plugin => 'redmine_performance_charts'%>
+<% content_for :header_tags do %> <%= javascript_include_tag "d3.v4.min.js",:plugin => 'redmine_performance_charts'%>
+  <%= javascript_include_tag"billboard.min.js", :plugin => 'redmine_performance_charts'%>
+  <%=javascript_include_tag "moment.min.js", :plugin => 'redmine_performance_charts'%>
   <!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_performance_charts'%>-->
   <%= stylesheet_link_tag "insight.min.css", :plugin => 'redmine_performance_charts', :media => "screen" %>
 <% end %>
-
-
 <h2>PerformanceController#project</h2>
-<div id="areaChart"> </div>
+<div id="areaChart"></div>
 <hr />
 <%= @project.id %>
 <hr />
@@ -17,55 +14,54 @@
 <%= @users %>
 <hr />
 <%= @time_entries %>
-
 <script type="text/javascript">
+  let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
+  let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
+  let users = JSON.parse('<%= @users.to_json.html_safe() %>');
+  //debugger;
 
-let weeks=50;
-let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
-let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
-let users = JSON.parse('<%= @users.to_json.html_safe() %>');
-//debugger;
-
-function getTimeBeam()  {
-    let result=[];
+  function getTimeBeam(weeks) {
+    let result = [];
     let runningDate = moment();
-    for (let i=0; i<=52; i++) {
-        result.push({'week':runningDate.week(), 'year':runningDate.year()})
-        runningDate = runningDate.subtract(7, "days");
+    for (let i = 0; i <= weeks; i++) {
+      result.push({ week: runningDate.week(), year: runningDate.year() });
+      runningDate = runningDate.subtract(7, "days");
     }
-    return result;
-}
+    return result.reverse();
+  }
 
-let topLevelIssues=issues.filter((issue)=>{return issue.isTopLevel});
-let colums=[];
-let types={};
-let groups=[];
-let timeBeam = getTimeBeam();
-topLevelIssues.forEach(function(issue) {
-    types[issue.subject] ="area-spline";
+  let topLevelIssues = issues.filter((issue) => {
+    return issue.isTopLevel;
+  });
+
+  let columns = [];
+  let types = {};
+  let groups = [];
+  let timeBeam = getTimeBeam(52);
+
+  topLevelIssues.forEach(function (issue) {
+    types[issue.subject] = "area-spline";
     groups.push(issue.subject);
+    
+    // create hours beam and push it to column
+    let hourBeam = timeBeam.map(function (elm) { 
+        relatedTimeEntries = timeEntries.filter(function(timeEntry) { return (timeEntry.topLevelID == issue.issueID && timeEntry.week == elm.week && timeEntry.year == elm.year)});
+        elm = relatedTimeEntries.reduce(function (sum, current) {return sum + current.hours;},0);
+        return elm;
+      });
+    columns.push([issue.subject].concat(hourBeam));
+  });
 
-});
-
-debugger;
-
-var chart = bb.generate({
-  data: {
-    columns: [
-	["data1", 300, 350, 300, 0, 0, 120],
-	["data2", 130, 100, 140, 200, 150, 50]
-    ],
-    types: {
-      data1: "area-spline", // for ESM specify as: areaSpline()
-      data2: "area-spline", // for ESM specify as: areaSpline()
+  var chart = bb.generate({
+    data: {
+        columns: columns,
+        types: types,
+        groups: [groups]
     },
-    groups: [
-      [
-        "data1",
-        "data2"
-      ]
-    ]
-  },
-  bindto: "#areaChart"
-});
+    bindto: "#areaChart",
+  });
+
+
+
+
 </script>

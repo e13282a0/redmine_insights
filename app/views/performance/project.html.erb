@@ -1,11 +1,23 @@
 <% content_for :header_tags do %>
-  <%= javascript_include_tag "d3.v4.min.js",:plugin => 'redmine_performance_charts'%>
-  <%= javascript_include_tag"billboard.min.js", :plugin => 'redmine_performance_charts'%>
-  <%=javascript_include_tag "moment.min.js", :plugin => 'redmine_performance_charts'%>
+  <%= javascript_include_tag "echarts.min.js",:plugin => 'redmine_performance_charts'%>
+  <!--<%= javascript_include_tag "require.min.js",:plugin => 'redmine_performance_charts'%>-->
+  <%= javascript_include_tag "moment.min.js", :plugin => 'redmine_performance_charts'%>
   <!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_performance_charts'%>-->
-  <%= stylesheet_link_tag "insight.min.css", :plugin => 'redmine_performance_charts' %>
+  
+<% end %>
+<h2>PerformanceController#project</h2>
 
-  <script type="text/javascript">
+<div id="areaChart" style="width: 600px;height:400px;"></div>
+<hr />
+<%= @project.id %>
+<hr />
+<%= @issues %>
+<hr />
+<%= @users %>
+<hr />
+<%= @time_entries %>
+
+<script type="text/javascript">
     let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
     let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
     let users = JSON.parse('<%= @users.to_json.html_safe() %>');
@@ -25,14 +37,12 @@
       return issue.isTopLevel;
     });
 
-    let columns = [];
-    let types = {};
-    let group = [];
+    let series = [];
+    let legend = [];
     let timeBeam = getTimeBeam(52);
-
     topLevelIssues.forEach(function (issue) {
-      types[issue.subject] = "area-spline";
-      group.push(issue.subject);
+
+      legend.push(issue.subject);
 
       // create hours beam and push it to column
       let hourBeam = timeBeam.map(function (elm) {
@@ -40,32 +50,50 @@
           elm = relatedTimeEntries.reduce(function (sum, current) {return sum + current.hours;},0);
           return elm;
         });
-      columns.push([issue.subject].concat(hourBeam));
+      series.push({
+        name: issue.subject,
+        type:'line',
+        stack:'total',
+        data:hourBeam
+      })
     });
-    let groups=[];
-    groups.push(group);
+  
     //debugger;
-      $(document).ready(function() {
-            var chart = bb.generate({
-                data: {
-                  columns: columns,
-                  types: types,
-                  groups: groups
-              },
-              bindto: "#areaChart",
-          });
-      });
+      var myChart = echarts.init(document.getElementById('areaChart'));
+      var option;
+
+option = {
+  title: {
+    text: 'Stacked Line'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  legend: {
+    data: legend
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: getTimeBeam(52).map(elm => elm.week+'/'+elm.year)
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: series
+};
+
+      // Display the chart using the configuration items and data just specified.
+      myChart.setOption(option);
   </script>
-<% end %>
-<h2>PerformanceController#project</h2>
-
-<div id="areaChart"></div>
-
-<hr />
-<%= @project.id %>
-<hr />
-<%= @issues %>
-<hr />
-<%= @users %>
-<hr />
-<%= @time_entries %>

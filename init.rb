@@ -1,7 +1,7 @@
-Redmine::Plugin.register :redmine_performance_charts do
-  name 'Redmine Performance Charts plugin'
+Redmine::Plugin.register :redmine_insights do
+  name 'Redmine performance insights plugin'
   author 'rc'
-  description 'This is a plugin for Redmine'
+  description 'Performance insights'
   version '0.0.2'
   url 'http://example.com/path/to/plugin'
   author_url 'http://example.com/about'

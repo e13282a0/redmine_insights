@@ -7,7 +7,7 @@
 <% end %>
 <h2>PerformanceController#project</h2>
 
-<div id="areaChart" style="width: 600px;height:400px;"></div>
+<div id="areaChart" style="width: 100%;height:400px;"></div>
 <hr />
 <%= @project.id %>
 <hr />
@@ -31,6 +31,13 @@
         runningDate = runningDate.subtract(7, "days");
       }
       return result.reverse();
+    }
+
+    function movingAvg(array, count) {
+      const _count = Math.min(count,array.length)*-1;
+      const arrayToSum = array.slice(_count);
+      const avg = arrayToSum.reduce((a, b) => a + (isNaN(b) ? 0 : b), 0) / arrayToSum.length;
+      return avg;
     }
 
     let topLevelIssues = issues.filter((issue) => {
@@ -57,8 +64,55 @@
         data:hourBeam
       })
     });
+
+    // average lines for 4weeks and 12 weeks
+    let started=false;
+    let counter=0;
+    let sumArray=[];
+    let avg4Weeks=[];
+    let avg12Weeks=[];
+    for (let i=0; i<timeBeam.length;i++) {
+      relatedTimeEntries = timeEntries.filter(function(timeEntry) { return (timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year)});
+      let weekSum = relatedTimeEntries.reduce(function (sum, current) {return sum + current.hours;},0);
+      sumArray.push(weekSum);
+      started = started || weekSum>0;
+      if (started) {
+        counter+=1;
+        avg4Weeks.push(movingAvg(sumArray, Math.min(4,counter)));
+        avg12Weeks.push(movingAvg(sumArray, Math.min(12,counter)));
+      } else {
+        avg4Weeks.push(0);
+        avg12Weeks.push(0);
+      }
+    }
+    series.push({
+        name: '4 week avg',
+        type:'line',
+        data:avg4Weeks,
+        smooth: true,
+        lineStyle: {
+        color: '#888888',
+        width: 1,
+        type: 'dashed'
+      },
+      });
+    legend.push('4 week avg')
+      series.push({
+        name: '12 week avg',
+        type:'line',
+        data:avg12Weeks,
+        smooth: true,
+        lineStyle: {
+        color: '#000000',
+        width: 1,
+        type: 'dashed'
+      },
+      });
+      legend.push('12 week avg')
+
+
   
-    //debugger;
+
       var myChart = echarts.init(document.getElementById('areaChart'));
       var option;
 

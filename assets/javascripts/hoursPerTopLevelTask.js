@@ -18,7 +18,7 @@ function movingAvg(array, count) {
 }
 
 // create Graph
-function hoursPerTopLevelTask(timeEntries, issues) {
+function hoursPerTopLevelTask(timeEntries, issues, versions) {
     let topLevelIssues = issues.filter((issue) => {
         return issue.isTopLevel;
     });
@@ -48,8 +48,9 @@ function hoursPerTopLevelTask(timeEntries, issues) {
     let started = false;
     let counter = 0;
     let sumArray = [];
-    let avg4Weeks = [];
+    //let avg4Weeks = [];
     let avg12Weeks = [];
+    let markLineData=[];
     for (let i = 0; i < timeBeam.length; i++) {
         relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year) });
         let weekSum = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
@@ -57,25 +58,33 @@ function hoursPerTopLevelTask(timeEntries, issues) {
         started = started || weekSum > 0;
         if (started) {
             counter += 1;
-            avg4Weeks.push(Math.round(movingAvg(sumArray, Math.min(4, counter))));
+            //avg4Weeks.push(Math.round(movingAvg(sumArray, Math.min(4, counter))));
             avg12Weeks.push(Math.round(movingAvg(sumArray, Math.min(12, counter))));
         } else {
-            avg4Weeks.push(0);
+            //avg4Weeks.push(0);
             avg12Weeks.push(0);
         }
+        // add markline
+        let version = versions.find(function(elm) {return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year})
+        if (version) {
+            markLineData.push({
+                xAxis:i,
+                name:version.name
+            })
+        }
     }
-    series.push({
-        name: '4 week avg',
-        type: 'line',
-        data: avg4Weeks,
-        smooth: true,
-        lineStyle: {
-            color: '#888888',
-            width: 1,
-            type: 'dashed'
-        },
-    });
-    legend.push('4 week avg')
+    // series.push({
+    //     name: '4 week avg',
+    //     type: 'line',
+    //     data: avg4Weeks,
+    //     smooth: true,
+    //     lineStyle: {
+    //         color: '#888888',
+    //         width: 1,
+    //         type: 'dashed'
+    //     },
+    // });
+    // legend.push('4 week avg')
     series.push({
         name: '12 week avg',
         type: 'line',
@@ -85,6 +94,14 @@ function hoursPerTopLevelTask(timeEntries, issues) {
             color: '#000000',
             width: 1,
             type: 'dashed'
+        },
+        markLine: {
+            symbol: ['none', 'none'],
+            label: {
+                formatter: '{b}',
+                position: 'insideEndTop'
+            },
+            data: markLineData
         },
     });
     legend.push('12 week avg');

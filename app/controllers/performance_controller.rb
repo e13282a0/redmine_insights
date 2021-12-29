@@ -29,9 +29,12 @@ class PerformanceController < ApplicationController
     end
 
     #issues
-    issues = Issue.where( :project_id => @project.id).to_a()
+    issues = Issue.where(:project_id => @project.id).to_a()
     @issues = issues.map{ |issue| {'issueID'=>issue.id, 'isTopLevel'=>issue.parent_id.nil?,'subject'=> issue.subject, 'tracker' => issue.tracker, 'startDate'=>issue.start_date, 'dueDate'=>issue.due_date, 'estimatedHours'=>issue.estimated_hours, 'closedOn'=>issue.closed_on}}
 
 
+    #Versions
+    versions = Version.where(:project_id => @project.id).to_a()
+    @versions = versions.map{|version| {'versionID'=>version.id, 'name'=>version.name, 'effectiveDate'=>version.effective_date, 'status'=>version.status, 'week'=>version.effective_date.cweek, 'year'=>version.effective_date.cwyear}}
   end
 end

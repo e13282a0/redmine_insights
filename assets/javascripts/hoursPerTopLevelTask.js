@@ -57,8 +57,8 @@ function hoursPerTopLevelTask(timeEntries, issues) {
         started = started || weekSum > 0;
         if (started) {
             counter += 1;
-            avg4Weeks.push(movingAvg(sumArray, Math.min(4, counter)));
-            avg12Weeks.push(movingAvg(sumArray, Math.min(12, counter)));
+            avg4Weeks.push(Math.round(movingAvg(sumArray, Math.min(4, counter))));
+            avg12Weeks.push(Math.round(movingAvg(sumArray, Math.min(12, counter))));
         } else {
             avg4Weeks.push(0);
             avg12Weeks.push(0);
@@ -90,17 +90,20 @@ function hoursPerTopLevelTask(timeEntries, issues) {
     legend.push('12 week avg');
     let option = {
         title: {
-            text: 'Stacked Line'
+            text: 'hours per calender week'
         },
         tooltip: {
             trigger: 'axis'
         },
         legend: {
-            data: legend
+            data: legend,
+            orient: 'vertical',
+            right: 10,
+            top: 'center'
         },
         grid: {
             left: '3%',
-            right: '4%',
+            right: '200',
             bottom: '3%',
             containLabel: true
         },

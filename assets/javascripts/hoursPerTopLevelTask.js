@@ -1,12 +1,13 @@
 // Create Time Beam Array
-function getTimeBeam(weeks) {
+function getTimeBeam(pastWeeks, futureWeeks=0) {
     let result = [];
-    let runningDate = moment();
-    for (let i = 0; i <= weeks; i++) {
+    let runningDate = moment().subtract(pastWeeks, 'week');
+    const _pastWeeks = pastWeeks*-1;
+    for (let i = _pastWeeks; i <= futureWeeks; i++) {
         result.push({ week: runningDate.week(), year: runningDate.year() });
-        runningDate = runningDate.subtract(7, "days");
+        runningDate.add(1, "week");
     }
-    return result.reverse();
+    return result;
 }
 
 // Calculate moving Average
@@ -50,7 +51,7 @@ function hoursPerTopLevelTask(timeEntries, issues, versions) {
     let sumArray = [];
     //let avg4Weeks = [];
     let avg12Weeks = [];
-    let markLineData=[];
+    let markLineData = [];
     for (let i = 0; i < timeBeam.length; i++) {
         relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year) });
         let weekSum = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
@@ -65,11 +66,11 @@ function hoursPerTopLevelTask(timeEntries, issues, versions) {
             avg12Weeks.push(0);
         }
         // add markline
-        let version = versions.find(function(elm) {return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year})
+        let version = versions.find(function (elm) { return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year })
         if (version) {
             markLineData.push({
-                xAxis:i,
-                name:version.name
+                xAxis: i,
+                name: version.name
             })
         }
     }

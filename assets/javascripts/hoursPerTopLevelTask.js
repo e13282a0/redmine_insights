@@ -19,11 +19,18 @@ function movingAvg(array, count) {
 }
 
 
-function getTimeSeriesData(timeEntries, issues, versions, weeks = [52, 0], avgLines = []) {
+function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
+    let firstTimeEntry = timeEntries.reduce(function (prev, curr) {
+        return moment(prev.spentOn) < moment(curr.spentOn) ? prev : curr;
+    });
+
+    let startDate = moment(firstTimeEntry.spentOn);
+    let weeks = moment().diff(startDate, 'week') + 2;
+
     let topLevelIssues = issues.filter((issue) => {
         return issue.isTopLevel;
     });
-    let timeBeam = getTimeBeam(weeks[0], weeks[1]);
+    let timeBeam = getTimeBeam(weeks);
     let result = {};
     result.legend = [];
     result.xAxis = timeBeam.map(elm => elm.week + '/' + elm.year)
@@ -32,9 +39,6 @@ function getTimeSeriesData(timeEntries, issues, versions, weeks = [52, 0], avgLi
     result.all = [];
     result.sum = [];
     result.markLineData = [];
-
-    // make axis
-    
 
     // make Lines
     topLevelIssues.forEach(function (issue) {
@@ -105,6 +109,10 @@ function weeklyHours(timeSeriesData) {
             type: 'line',
             stack: 'Total',
             data: line.valArr,
+            areaStyle: {},
+            emphasis: {
+                focus: 'series'
+            },
             markLine: {
                 symbol: ['none', 'none'],
                 label: {
@@ -199,6 +207,10 @@ function weeklyHoursSummed(timeSeriesData) {
                     position: 'insideEndTop'
                 },
                 data: timeSeriesData.markLineData
+            },
+            areaStyle: {},
+            emphasis: {
+                focus: 'series'
             },
         });
     })

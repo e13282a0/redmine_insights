@@ -5,8 +5,8 @@
 	<!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_insights'%>-->
 <% end %>
 <h2>PerformanceController#project</h2>
-<div id="hoursPerTopLevelTaskChart" style="width: 100%;height:400px;"></div>
-<div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:400px;"></div>
+<div id="hoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
+<div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 
 <hr />
 <%= @versions %>
@@ -17,7 +17,7 @@
   let versions = JSON.parse('<%= @versions.to_json.html_safe() %>');
 	//debugger;
 
-  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions, [52, 0], [12]);
+  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions, [12]);
 
 	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
 	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));

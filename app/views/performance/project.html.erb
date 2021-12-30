@@ -1,11 +1,12 @@
 <% content_for :header_tags do %>
 	<%= javascript_include_tag "echarts.min.js",:plugin => 'redmine_insights'%>
 	<%= javascript_include_tag "moment.min.js", :plugin => 'redmine_insights'%>
-	<%= javascript_include_tag "hoursPerTopLevelTask.js", :plugin => 'redmine_insights'%>
+	<%= javascript_include_tag "insights.js", :plugin => 'redmine_insights'%>
 	<!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_insights'%>-->
 <% end %>
 <h2>PerformanceController#project</h2>
 <div id="hoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
+<div id="avgHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="treemap" style="width: 100%;height:500px;"></div>
 
@@ -21,6 +22,9 @@
 
 	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
 	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));
+
+  const avgHoursPerTopLevelTaskChart = echarts.init(document.getElementById('avgHoursPerTopLevelTaskChart'));
+	avgHoursPerTopLevelTaskChart.setOption(avgWeeklyHours(timeSeriesData));
 
   const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
 	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));

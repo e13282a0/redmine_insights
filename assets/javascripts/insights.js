@@ -19,7 +19,7 @@ function movingAvg(array, count) {
 }
 
 
-function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
+function getTimeSeriesData(timeEntries, issues, versions, avgInterval = 12) {
     let firstTimeEntry = timeEntries.reduce(function (prev, curr) {
         return moment(prev.spentOn) < moment(curr.spentOn) ? prev : curr;
     });
@@ -35,7 +35,7 @@ function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
     result.legend = [];
     result.xAxis = timeBeam.map(elm => elm.week + '/' + elm.year)
     result.lines = [];
-    result.avgLines = [];
+    result.avgLine = {};
     result.all = [];
     result.sum = [];
     result.markLineData = [];
@@ -45,6 +45,9 @@ function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
         let sum = 0;
         let valArr = [];
         let sumArr = [];
+        let avgArr = [];
+        let avgStarted = false;
+        let avgCounter = 0;
         for (let i = 0; i < timeBeam.length; i++) {
             relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.topLevelID == issue.issueID && timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year) });
             val = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
@@ -61,6 +64,15 @@ function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
                 result.sum.push(sum);
             else
                 result.sum[i] += sum;
+            // add avg
+            avgStarted = avgStarted || val > 0;
+            if (avgStarted) {
+                avgCounter += 1;
+                avgArr.push(Math.round(movingAvg(valArr, Math.min(avgInterval, avgCounter))));
+            } else {
+                avgArr.push(0);
+            }
+
             // add markline
             let version = versions.find(function (elm) { return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year })
             if (version) {
@@ -70,29 +82,29 @@ function getTimeSeriesData(timeEntries, issues, versions, avgLines = []) {
                 })
             }
         }
-        result.lines.push({ 'name': issue.subject, 'valArr': valArr, 'sumArr': sumArr })
+        result.lines.push({ 'name': issue.subject, 'valArr': valArr, 'sumArr': sumArr, 'avgArr':avgArr})
     });
 
-    // make avg
-    avgLines.forEach(function (avgLine) {
-        let started = false;
-        let counter = 0;
-        let sumArray = [];
-        //let avg4Weeks = [];
-        let avgArr = [];
-        for (let i = 0; i < result.all.length; i++) {
-            let weekSum = result.all[i];
-            sumArray.push(weekSum);
-            started = started || weekSum > 0;
-            if (started) {
-                counter += 1;
-                avgArr.push(Math.round(movingAvg(sumArray, Math.min(avgLine, counter))));
-            } else {
-                avgArr.push(0);
-            }
+    // make overall avg
+
+    let started = false;
+    let counter = 0;
+    let sumArray = [];
+    //let avg4Weeks = [];
+    let avgArr = [];
+    for (let i = 0; i < result.all.length; i++) {
+        let weekSum = result.all[i];
+        sumArray.push(weekSum);
+        started = started || weekSum > 0;
+        if (started) {
+            counter += 1;
+            avgArr.push(Math.round(movingAvg(sumArray, Math.min(avgInterval, counter))));
+        } else {
+            avgArr.push(0);
         }
-        result.avgLines.push({ 'name': 'avg ' + avgLine + ' w', 'valArr': avgArr })
-    })
+    }
+    result.avgLine = { 'name': 'avg ' + avgInterval + ' w', 'valArr': avgArr };
+
     return result;
 }
 
@@ -124,18 +136,83 @@ function weeklyHours(timeSeriesData) {
         });
     })
 
-    timeSeriesData.avgLines.forEach(function (avgLine) {
-        legend.push(avgLine.name);
-        series.push({
-            name: avgLine.name,
-            type: 'line',
-            smooth: true,
-            lineStyle: {
-                color: '#000000',
-                width: 1,
-                type: 'dashed'
+    // add avg line
+    let avgLine = timeSeriesData.avgLine
+    legend.push(avgLine.name);
+    series.push({
+        name: avgLine.name,
+        type: 'line',
+        smooth: true,
+        lineStyle: {
+            color: '#000000',
+            width: 1,
+            type: 'dashed'
+        },
+        data: avgLine.valArr,
+        markLine: {
+            symbol: ['none', 'none'],
+            label: {
+                formatter: '{b}',
+                position: 'insideEndTop'
             },
-            data: avgLine.valArr,
+            data: timeSeriesData.markLineData
+        },
+    });
+
+
+    let option = {
+        title: {
+            text: 'hours per top level task'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: legend,
+            orient: 'vertical',
+            right: 10,
+            top: 'center'
+        },
+        grid: {
+            left: '3%',
+            right: '200',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: timeSeriesData.xAxis
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: series
+    };
+    return option;
+}
+
+function avgWeeklyHours(timeSeriesData) {
+    let series = [];
+    let legend = [];
+
+    timeSeriesData.lines.forEach(function (line) {
+        legend.push(line.name);
+        series.push({
+            name: line.name,
+            type: 'line',
+            stack: 'Total',
+            data: line.avgArr,
+            smooth: true,
+            areaStyle: {},
+            emphasis: {
+                focus: 'series'
+            },
             markLine: {
                 symbol: ['none', 'none'],
                 label: {
@@ -147,9 +224,12 @@ function weeklyHours(timeSeriesData) {
         });
     })
 
+ 
+
+
     let option = {
         title: {
-            text: 'hours per calender week'
+            text: 'avg hours per top level task'
         },
         tooltip: {
             trigger: 'axis'
@@ -218,7 +298,7 @@ function weeklyHoursSummed(timeSeriesData) {
 
     let option = {
         title: {
-            text: 'summed hours per calender week'
+            text: 'summed hours per top level task'
         },
         tooltip: {
             trigger: 'axis'
@@ -256,8 +336,6 @@ function weeklyHoursSummed(timeSeriesData) {
 /***
  * Treemap
  */
-
-
 
 function getTreeMapData(issues) {
     let topLevelIssues = issues.filter((issue) => {

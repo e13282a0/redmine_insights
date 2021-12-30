@@ -82,7 +82,7 @@ function getTimeSeriesData(timeEntries, issues, versions, avgInterval = 12) {
                 })
             }
         }
-        result.lines.push({ 'name': issue.subject, 'valArr': valArr, 'sumArr': sumArr, 'avgArr':avgArr})
+        result.lines.push({ 'name': issue.subject, 'valArr': valArr, 'sumArr': sumArr, 'avgArr': avgArr })
     });
 
     // make overall avg
@@ -222,10 +222,7 @@ function avgWeeklyHours(timeSeriesData) {
                 data: timeSeriesData.markLineData
             },
         });
-    })
-
- 
-
+    });
 
     let option = {
         title: {
@@ -260,15 +257,11 @@ function avgWeeklyHours(timeSeriesData) {
             type: 'value'
         },
         series: series
-    };
-    return option;
+    }
+
+    return option
 }
 
-/**
- * Graph for summed hours
- * @param {*} timeSeriesData 
- * @returns 
- */
 function weeklyHoursSummed(timeSeriesData) {
     let series = [];
     let legend = [];
@@ -437,4 +430,73 @@ function treeMap(treeMapData) {
         },
     };
     return option;
+}
+
+/***
+ * User Radar
+ */
+
+ function findUsersForProject(timeEntries, users) {
+    let userIDs = timeEntries.map(elm => { return elm.userID });
+    let uniqueUserIDs = [...new Set(userIDs)];
+    return users.filter(function (user) {
+        return uniqueUserIDs.includes(user.userID)
+    })
+}
+
+function getUserRadarData(timeEntries, issues, users) {
+    const topLevelIssues = issues.filter((issue) => {
+        return issue.parentID === null;
+    });
+
+    const angleAxis = topLevelIssues.map(elm => { return elm.subject });
+    const uniqueUsers = findUsersForProject(timeEntries, users);
+    let series = [];
+    let legend = [];
+
+
+    uniqueUsers.forEach(function(user){
+        let serie = [];
+        legend.push(user.userName);
+        topLevelIssues.forEach(function (issue) {
+            let relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.topLevelID == issue.issueID && timeEntry.userID == user.userID) });
+            let val = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
+            serie.push(val)
+        })
+        series.push({ 'name': user.userName, 'data': serie })
+    })
+    return { 'angleAxis': angleAxis, 'series': series, 'legend': legend }
+}
+
+function getUserRadarChart(userRadarData) {
+    let series = [];
+    let legend = [];
+    userRadarData.series.forEach(function (serie) {
+        legend.push(serie.name);
+        series.push({
+            type: 'bar',
+            data: serie.data,
+            coordinateSystem: 'polar',
+            name: serie.name,
+            stack: 'a',
+            emphasis: {
+                focus: 'series'
+            }
+        })
+    })
+
+    return {
+        angleAxis: {
+            type: 'category',
+            data: userRadarData.angleAxis
+        },
+        radiusAxis: {},
+        polar: {},
+        series: series,
+        legend: {
+            show: true,
+            data: legend
+        }
+    };
+
 }

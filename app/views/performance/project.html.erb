@@ -9,6 +9,7 @@
 <div id="avgHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="treemap" style="width: 100%;height:500px;"></div>
+<div id="userRadarChart" style="width: 100%;height:500px;"></div>
 
 <hr />
 <%= @versions %>
@@ -18,19 +19,20 @@
 	let users = JSON.parse('<%= @users.to_json.html_safe() %>');
   let versions = JSON.parse('<%= @versions.to_json.html_safe() %>');
 
-  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions, [12]);
-
+  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions);
 	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
 	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));
-
   const avgHoursPerTopLevelTaskChart = echarts.init(document.getElementById('avgHoursPerTopLevelTaskChart'));
 	avgHoursPerTopLevelTaskChart.setOption(avgWeeklyHours(timeSeriesData));
-
   const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
 	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));
 
   const treeMapData = getTreeMapData(issues);
   const treemap = echarts.init(document.getElementById('treemap'));
   treemap.setOption(treeMap(treeMapData));
+
+  const userRadarData = getUserRadarData(timeEntries, issues, users);
+  const userRadarChart = echarts.init(document.getElementById('userRadarChart'));
+  userRadarChart.setOption(getUserRadarChart(userRadarData));
 	
 </script>

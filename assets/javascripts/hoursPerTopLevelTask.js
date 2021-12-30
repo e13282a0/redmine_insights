@@ -1,8 +1,8 @@
 // Create Time Beam Array
-function getTimeBeam(pastWeeks, futureWeeks=0) {
+function getTimeBeam(pastWeeks, futureWeeks = 0) {
     let result = [];
     let runningDate = moment().subtract(pastWeeks, 'week');
-    const _pastWeeks = pastWeeks*-1;
+    const _pastWeeks = pastWeeks * -1;
     for (let i = _pastWeeks; i <= futureWeeks; i++) {
         result.push({ week: runningDate.week(), year: runningDate.year() });
         runningDate.add(1, "week");
@@ -18,94 +18,127 @@ function movingAvg(array, count) {
     return avg;
 }
 
-// create Graph
-function hoursPerTopLevelTask(timeEntries, issues, versions) {
+
+function getTimeSeriesData(timeEntries, issues, versions, weeks = [52, 0], avgLines = []) {
     let topLevelIssues = issues.filter((issue) => {
         return issue.isTopLevel;
     });
+    let timeBeam = getTimeBeam(weeks[0], weeks[1]);
+    let result = {};
+    result.legend = [];
+    result.xAxis = timeBeam.map(elm => elm.week + '/' + elm.year)
+    result.lines = [];
+    result.avgLines = [];
+    result.all = [];
+    result.sum = [];
+    result.markLineData = [];
 
+    // make axis
+    
+
+    // make Lines
+    topLevelIssues.forEach(function (issue) {
+        let sum = 0;
+        let valArr = [];
+        let sumArr = [];
+        for (let i = 0; i < timeBeam.length; i++) {
+            relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.topLevelID == issue.issueID && timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year) });
+            val = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
+            sum += val;
+            valArr.push(val);
+            sumArr.push(sum);
+            // add total
+            if (i >= result.all.length)
+                result.all.push(val);
+            else
+                result.all[i] += val;
+            // add total Sum
+            if (i >= result.sum.length)
+                result.sum.push(sum);
+            else
+                result.sum[i] += sum;
+            // add markline
+            let version = versions.find(function (elm) { return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year })
+            if (version) {
+                result.markLineData.push({
+                    xAxis: i,
+                    name: version.name
+                })
+            }
+        }
+        result.lines.push({ 'name': issue.subject, 'valArr': valArr, 'sumArr': sumArr })
+    });
+
+    // make avg
+    avgLines.forEach(function (avgLine) {
+        let started = false;
+        let counter = 0;
+        let sumArray = [];
+        //let avg4Weeks = [];
+        let avgArr = [];
+        for (let i = 0; i < result.all.length; i++) {
+            let weekSum = result.all[i];
+            sumArray.push(weekSum);
+            started = started || weekSum > 0;
+            if (started) {
+                counter += 1;
+                avgArr.push(Math.round(movingAvg(sumArray, Math.min(avgLine, counter))));
+            } else {
+                avgArr.push(0);
+            }
+        }
+        result.avgLines.push({ 'name': 'avg ' + avgLine + ' w', 'valArr': avgArr })
+    })
+    return result;
+}
+
+// create Graph
+
+function weeklyHours(timeSeriesData) {
     let series = [];
     let legend = [];
-    let timeBeam = getTimeBeam(52);
-    topLevelIssues.forEach(function (issue) {
 
-        legend.push(issue.subject);
-
-        // create hours beam and push it to column
-        let hourBeam = timeBeam.map(function (elm) {
-            relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.topLevelID == issue.issueID && timeEntry.week == elm.week && timeEntry.year == elm.year) });
-            elm = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
-            return elm;
-        });
+    timeSeriesData.lines.forEach(function (line) {
+        legend.push(line.name);
         series.push({
-            name: issue.subject,
+            name: line.name,
             type: 'line',
-            stack: 'total',
-            data: hourBeam
-        })
-    });
-
-    // average lines for 4weeks and 12 weeks
-    let started = false;
-    let counter = 0;
-    let sumArray = [];
-    //let avg4Weeks = [];
-    let avg12Weeks = [];
-    let markLineData = [];
-    for (let i = 0; i < timeBeam.length; i++) {
-        relatedTimeEntries = timeEntries.filter(function (timeEntry) { return (timeEntry.week == timeBeam[i].week && timeEntry.year == timeBeam[i].year) });
-        let weekSum = relatedTimeEntries.reduce(function (sum, current) { return sum + current.hours; }, 0);
-        sumArray.push(weekSum);
-        started = started || weekSum > 0;
-        if (started) {
-            counter += 1;
-            //avg4Weeks.push(Math.round(movingAvg(sumArray, Math.min(4, counter))));
-            avg12Weeks.push(Math.round(movingAvg(sumArray, Math.min(12, counter))));
-        } else {
-            //avg4Weeks.push(0);
-            avg12Weeks.push(0);
-        }
-        // add markline
-        let version = versions.find(function (elm) { return elm.week == timeBeam[i].week && elm.year == timeBeam[i].year })
-        if (version) {
-            markLineData.push({
-                xAxis: i,
-                name: version.name
-            })
-        }
-    }
-    // series.push({
-    //     name: '4 week avg',
-    //     type: 'line',
-    //     data: avg4Weeks,
-    //     smooth: true,
-    //     lineStyle: {
-    //         color: '#888888',
-    //         width: 1,
-    //         type: 'dashed'
-    //     },
-    // });
-    // legend.push('4 week avg')
-    series.push({
-        name: '12 week avg',
-        type: 'line',
-        data: avg12Weeks,
-        smooth: true,
-        lineStyle: {
-            color: '#000000',
-            width: 1,
-            type: 'dashed'
-        },
-        markLine: {
-            symbol: ['none', 'none'],
-            label: {
-                formatter: '{b}',
-                position: 'insideEndTop'
+            stack: 'Total',
+            data: line.valArr,
+            markLine: {
+                symbol: ['none', 'none'],
+                label: {
+                    formatter: '{b}',
+                    position: 'insideEndTop'
+                },
+                data: timeSeriesData.markLineData
             },
-            data: markLineData
-        },
-    });
-    legend.push('12 week avg');
+        });
+    })
+
+    timeSeriesData.avgLines.forEach(function (avgLine) {
+        legend.push(avgLine.name);
+        series.push({
+            name: avgLine.name,
+            type: 'line',
+            smooth: true,
+            lineStyle: {
+                color: '#000000',
+                width: 1,
+                type: 'dashed'
+            },
+            data: avgLine.valArr,
+            markLine: {
+                symbol: ['none', 'none'],
+                label: {
+                    formatter: '{b}',
+                    position: 'insideEndTop'
+                },
+                data: timeSeriesData.markLineData
+            },
+        });
+    })
+
     let option = {
         title: {
             text: 'hours per calender week'
@@ -133,7 +166,72 @@ function hoursPerTopLevelTask(timeEntries, issues, versions) {
         xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: getTimeBeam(52).map(elm => elm.week + '/' + elm.year)
+            data: timeSeriesData.xAxis
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: series
+    };
+    return option;
+}
+
+/**
+ * Graph for summed hours
+ * @param {*} timeSeriesData 
+ * @returns 
+ */
+function weeklyHoursSummed(timeSeriesData) {
+    let series = [];
+    let legend = [];
+
+    timeSeriesData.lines.forEach(function (line) {
+        legend.push(line.name);
+        series.push({
+            name: line.name,
+            type: 'line',
+            stack: 'Total',
+            data: line.sumArr,
+            markLine: {
+                symbol: ['none', 'none'],
+                label: {
+                    formatter: '{b}',
+                    position: 'insideEndTop'
+                },
+                data: timeSeriesData.markLineData
+            },
+        });
+    })
+
+
+    let option = {
+        title: {
+            text: 'summed hours per calender week'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: legend,
+            orient: 'vertical',
+            right: 10,
+            top: 'center'
+        },
+        grid: {
+            left: '3%',
+            right: '200',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: timeSeriesData.xAxis
         },
         yAxis: {
             type: 'value'

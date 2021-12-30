@@ -6,6 +6,7 @@
 <% end %>
 <h2>PerformanceController#project</h2>
 <div id="hoursPerTopLevelTaskChart" style="width: 100%;height:400px;"></div>
+<div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:400px;"></div>
 
 <hr />
 <%= @versions %>
@@ -16,7 +17,11 @@
   let versions = JSON.parse('<%= @versions.to_json.html_safe() %>');
 	//debugger;
 
+  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions, [52, 0], [12]);
 
 	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
-	hoursPerTopLevelTaskChart.setOption(hoursPerTopLevelTask(timeEntries,issues,versions));
+	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));
+
+  const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
+	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));
 </script>

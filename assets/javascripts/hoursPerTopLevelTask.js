@@ -253,17 +253,22 @@ function weeklyHoursSummed(timeSeriesData) {
     return option;
 }
 
+/***
+ * Treemap
+ */
 
-function getChildIssues(issues, issueID) {
-    return issues.filter((issue) => {
-        return issue.parentID === issueID;
-    });
-}
+
 
 function getTreeMapData(issues) {
     let topLevelIssues = issues.filter((issue) => {
         return issue.parentID === null;
     });
+
+    function getChildIssues(issues, issueID) {
+        return issues.filter((issue) => {
+            return issue.parentID === issueID;
+        });
+    }
 
     function makeNodes(_issues) {
         let result = []
@@ -283,38 +288,38 @@ function getTreeMapData(issues) {
 function treeMap(treeMapData) {
     function getLevelOption() {
         return [
-          {
-            itemStyle: {
-              borderColor: '#777',
-              borderWidth: 0,
-              gapWidth: 1
+            {
+                itemStyle: {
+                    borderColor: '#777',
+                    borderWidth: 0,
+                    gapWidth: 1
+                },
+                upperLabel: {
+                    show: false
+                }
             },
-            upperLabel: {
-              show: false
-            }
-          },
-          {
-            itemStyle: {
-              borderColor: '#555',
-              borderWidth: 5,
-              gapWidth: 1
+            {
+                itemStyle: {
+                    borderColor: '#555',
+                    borderWidth: 5,
+                    gapWidth: 1
+                },
+                emphasis: {
+                    itemStyle: {
+                        borderColor: '#ddd'
+                    }
+                }
             },
-            emphasis: {
-              itemStyle: {
-                borderColor: '#ddd'
-              }
+            {
+                colorSaturation: [0.35, 0.5],
+                itemStyle: {
+                    borderWidth: 5,
+                    gapWidth: 1,
+                    borderColorSaturation: 0.6
+                }
             }
-          },
-          {
-            colorSaturation: [0.35, 0.5],
-            itemStyle: {
-              borderWidth: 5,
-              gapWidth: 1,
-              borderColorSaturation: 0.6
-            }
-          }
         ];
-      }
+    }
 
     let option = {
         series: [
@@ -335,23 +340,23 @@ function treeMap(treeMapData) {
                 },
             }
         ],
-        
+
         tooltip: {
-        formatter: function (info) {
-          var value = info.value;
-          var treePathInfo = info.treePathInfo;
-          var treePath = [];
-          for (var i = 1; i < treePathInfo.length; i++) {
-            treePath.push(treePathInfo[i].name);
-          }
-          return [
-            '<div class="tooltip-title">' +
-              echarts.format.encodeHTML(treePath.join('/')) +
-              '</div>',
-            'time spent: ' + echarts.format.addCommas(value) + ' h'
-          ].join('');
-        }
-      },
+            formatter: function (info) {
+                var value = info.value;
+                var treePathInfo = info.treePathInfo;
+                var treePath = [];
+                for (var i = 1; i < treePathInfo.length; i++) {
+                    treePath.push(treePathInfo[i].name);
+                }
+                return [
+                    '<div class="tooltip-title">' +
+                    echarts.format.encodeHTML(treePath.join('/')) +
+                    '</div>',
+                    'time spent: ' + echarts.format.addCommas(value) + ' h'
+                ].join('');
+            }
+        },
     };
     return option;
 }

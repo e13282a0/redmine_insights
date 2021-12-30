@@ -252,3 +252,106 @@ function weeklyHoursSummed(timeSeriesData) {
     };
     return option;
 }
+
+
+function getChildIssues(issues, issueID) {
+    return issues.filter((issue) => {
+        return issue.parentID === issueID;
+    });
+}
+
+function getTreeMapData(issues) {
+    let topLevelIssues = issues.filter((issue) => {
+        return issue.parentID === null;
+    });
+
+    function makeNodes(_issues) {
+        let result = []
+        _issues.forEach(function (issue) {
+            result.push({
+                'name': issue.subject,
+                'value': issue.totalSpentHours,
+                'children': getChildIssues(issues, issue.issueID).length > 0 ? makeNodes(getChildIssues(issues, issue.issueID)) : []
+            })
+        })
+        return result;
+    }
+
+    return makeNodes(topLevelIssues);
+}
+
+function treeMap(treeMapData) {
+    function getLevelOption() {
+        return [
+          {
+            itemStyle: {
+              borderColor: '#777',
+              borderWidth: 0,
+              gapWidth: 1
+            },
+            upperLabel: {
+              show: false
+            }
+          },
+          {
+            itemStyle: {
+              borderColor: '#555',
+              borderWidth: 5,
+              gapWidth: 1
+            },
+            emphasis: {
+              itemStyle: {
+                borderColor: '#ddd'
+              }
+            }
+          },
+          {
+            colorSaturation: [0.35, 0.5],
+            itemStyle: {
+              borderWidth: 5,
+              gapWidth: 1,
+              borderColorSaturation: 0.6
+            }
+          }
+        ];
+      }
+
+    let option = {
+        series: [
+            {
+                type: 'treemap',
+                data: treeMapData,
+                levels: getLevelOption(),
+                label: {
+                    show: true,
+                    formatter: '{b}'
+                },
+                itemStyle: {
+                    borderColor: '#fff'
+                },
+                upperLabel: {
+                    show: true,
+                    height: 30
+                },
+            }
+        ],
+        
+        tooltip: {
+        formatter: function (info) {
+          var value = info.value;
+          var treePathInfo = info.treePathInfo;
+          var treePath = [];
+          for (var i = 1; i < treePathInfo.length; i++) {
+            treePath.push(treePathInfo[i].name);
+          }
+          return [
+            '<div class="tooltip-title">' +
+              echarts.format.encodeHTML(treePath.join('/')) +
+              '</div>',
+            'time spent: ' + echarts.format.addCommas(value) + ' h'
+          ].join('');
+        }
+      },
+    };
+    return option;
+}

@@ -30,7 +30,7 @@ class PerformanceController < ApplicationController
 
     #issues
     issues = Issue.where(:project_id => @project.id).to_a()
-    @issues = issues.map{ |issue| {'issueID'=>issue.id, 'isTopLevel'=>issue.parent_id.nil?,'subject'=> issue.subject, 'tracker' => issue.tracker, 'startDate'=>issue.start_date, 'dueDate'=>issue.due_date, 'estimatedHours'=>issue.estimated_hours, 'closedOn'=>issue.closed_on}}
+    @issues = issues.map{ |issue| {'issueID'=>issue.id, 'isTopLevel'=>issue.parent_id.nil?,'subject'=> issue.subject, 'tracker' => issue.tracker, 'startDate'=>issue.start_date, 'dueDate'=>issue.due_date, 'estimatedHours'=>issue.estimated_hours, 'closedOn'=>issue.closed_on, 'parentID'=>issue.parent_id, 'spentHours'=>issue.spent_hours, 'totalSpentHours'=>issue.total_spent_hours}}
 
 
     #Versions

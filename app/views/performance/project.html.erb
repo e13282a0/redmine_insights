@@ -7,6 +7,7 @@
 <h2>PerformanceController#project</h2>
 <div id="hoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
+<div id="treemap" style="width: 100%;height:500px;"></div>
 
 <hr />
 <%= @versions %>
@@ -15,7 +16,6 @@
 	let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
 	let users = JSON.parse('<%= @users.to_json.html_safe() %>');
   let versions = JSON.parse('<%= @versions.to_json.html_safe() %>');
-	//debugger;
 
   const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions, [12]);
 
@@ -24,4 +24,9 @@
 
   const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
 	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));
+
+  const treeMapData = getTreeMapData(issues);
+  const treemap = echarts.init(document.getElementById('treemap'));
+  treemap.setOption(treeMap(treeMapData));
+	
 </script>

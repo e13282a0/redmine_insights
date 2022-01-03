@@ -1,59 +1,76 @@
 <% content_for :header_tags do %>
 
+
+	
+
+
+
 	<%= javascript_include_tag "includes/echarts.min.js",:plugin => 'redmine_insights'%>
 	<%= javascript_include_tag "includes/moment.min.js", :plugin => 'redmine_insights'%>
 	<%= javascript_include_tag "includes/insights.js", :plugin => 'redmine_insights'%>
-	
-	<!-- install vue and vuetify -->
-	<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"%>
-	<%= stylesheet_link_tag "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900", "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" %>
-
 <% end %>
 
 <h2>PerformanceController#project</h2>
+
+<div id="app">
+  <v-app>
+      <v-main>
+  		<button-counter></button-counter>
+		<v-btn v-on:click.native="alert('test')">test</v-btn>
+     </v-main>
+</v-app>
+</div>
+
 <div id="hoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="avgHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="sumHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="treemap" style="width: 100%;height:500px;"></div>
 <div id="userRadarChart" style="width: 100%;height:500px;"></div>
 
-<div id="app">
-  
-
-  <v-app>
-      <v-main>
-        <v-container><p>{{ message }}</p>
-  <v-btn v-on:click="reverseMessage">Reverse Message</v-btn></v-container>
-      </v-main>
-    </v-app>
-
-</div>
-
 
 <hr />
-<%= @versions %>
+
+
+<!-- install vue and vuetify -->
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"%>
+<%= stylesheet_link_tag "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900", "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" %>
+<%= javascript_include_tag "components/ExampleComponent.js", :plugin => 'redmine_insights'%>
 <script type="text/javascript">
+	
+	var app = new Vue({
+		el: '#app',
+		data: {
+			timeEntries: JSON.parse('<%= @time_entries.to_json.html_safe() %>'),
+			issues: JSON.parse('<%= @issues.to_json.html_safe() %>'),
+			user: JSON.parse('<%= @users.to_json.html_safe() %>'),
+			versions: JSON.parse('<%= @versions.to_json.html_safe() %>')
+		},
+		vuetify: new Vuetify(),
+		methods: {
+			reverseMessage: function () {
+				this.message = this.message.split('').reverse().join('')
+			}
+		}
+	})
 
-	let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
-	let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
-	let users = JSON.parse('<%= @users.to_json.html_safe() %>');
-  let versions = JSON.parse('<%= @versions.to_json.html_safe() %>');
 
-  const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions);
-	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
-	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));
-  const avgHoursPerTopLevelTaskChart = echarts.init(document.getElementById('avgHoursPerTopLevelTaskChart'));
-	avgHoursPerTopLevelTaskChart.setOption(avgWeeklyHours(timeSeriesData));
-  const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
-	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));
+//   const timeSeriesData = getTimeSeriesData(timeEntries, issues, versions);
+// 	const hoursPerTopLevelTaskChart = echarts.init(document.getElementById('hoursPerTopLevelTaskChart'));
+// 	hoursPerTopLevelTaskChart.setOption(weeklyHours(timeSeriesData));
+//   const avgHoursPerTopLevelTaskChart = echarts.init(document.getElementById('avgHoursPerTopLevelTaskChart'));
+// 	avgHoursPerTopLevelTaskChart.setOption(avgWeeklyHours(timeSeriesData));
+//   const sumHoursPerTopLevelTaskChart = echarts.init(document.getElementById('sumHoursPerTopLevelTaskChart'));
+// 	sumHoursPerTopLevelTaskChart.setOption(weeklyHoursSummed(timeSeriesData));
 
-  const treeMapData = getTreeMapData(issues);
-  const treemap = echarts.init(document.getElementById('treemap'));
-  treemap.setOption(treeMap(treeMapData));
+//   const treeMapData = getTreeMapData(issues);
+//   const treemap = echarts.init(document.getElementById('treemap'));
+//   treemap.setOption(treeMap(treeMapData));
 
-  const userRadarData = getUserRadarData(timeEntries, issues, users);
-  const userRadarChart = echarts.init(document.getElementById('userRadarChart'));
-  userRadarChart.setOption(getUserRadarChart(userRadarData));
+//   const userRadarData = getUserRadarData(timeEntries, issues, users);
+//   const userRadarChart = echarts.init(document.getElementById('userRadarChart'));
+//   userRadarChart.setOption(getUserRadarChart(userRadarData));
 	
 </script>
+	
+
 <%= javascript_include_tag "app.js", :plugin => 'redmine_insights'%>

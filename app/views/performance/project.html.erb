@@ -16,7 +16,8 @@
   <v-app>
       <v-main>
   		<button-counter></button-counter>
-		<v-btn v-on:click.native="alert('test')">test</v-btn>
+
+		<is-chart />
      </v-main>
 </v-app>
 </div>
@@ -32,13 +33,17 @@
 
 
 <!-- install vue and vuetify -->
-<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"%>
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js","https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js"%>
 <%= stylesheet_link_tag "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900", "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" %>
 <%= javascript_include_tag "components/ExampleComponent.js", :plugin => 'redmine_insights'%>
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.5","https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0"%>
 <script type="text/javascript">
-	
+	Vue.component("v-chart", VueECharts);
 	var app = new Vue({
 		el: '#app',
+		components: {
+			'is-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/is-chart.vue')
+			},
 		data: {
 			timeEntries: JSON.parse('<%= @time_entries.to_json.html_safe() %>'),
 			issues: JSON.parse('<%= @issues.to_json.html_safe() %>'),
@@ -51,6 +56,7 @@
 				this.message = this.message.split('').reverse().join('')
 			}
 		}
+		
 	})
 
 

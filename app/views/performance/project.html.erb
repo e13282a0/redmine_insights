@@ -1,9 +1,15 @@
 <% content_for :header_tags do %>
-	<%= javascript_include_tag "echarts.min.js",:plugin => 'redmine_insights'%>
-	<%= javascript_include_tag "moment.min.js", :plugin => 'redmine_insights'%>
-	<%= javascript_include_tag "insights.js", :plugin => 'redmine_insights'%>
-	<!--<%= javascript_include_tag "vue.min.js", :plugin => 'redmine_insights'%>-->
+
+	<%= javascript_include_tag "includes/echarts.min.js",:plugin => 'redmine_insights'%>
+	<%= javascript_include_tag "includes/moment.min.js", :plugin => 'redmine_insights'%>
+	<%= javascript_include_tag "includes/insights.js", :plugin => 'redmine_insights'%>
+	
+	<!-- install vue and vuetify -->
+	<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"%>
+	<%= stylesheet_link_tag "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900", "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" %>
+
 <% end %>
+
 <h2>PerformanceController#project</h2>
 <div id="hoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
 <div id="avgHoursPerTopLevelTaskChart" style="width: 100%;height:350px;"></div>
@@ -11,9 +17,23 @@
 <div id="treemap" style="width: 100%;height:500px;"></div>
 <div id="userRadarChart" style="width: 100%;height:500px;"></div>
 
+<div id="app">
+  
+
+  <v-app>
+      <v-main>
+        <v-container><p>{{ message }}</p>
+  <v-btn v-on:click="reverseMessage">Reverse Message</v-btn></v-container>
+      </v-main>
+    </v-app>
+
+</div>
+
+
 <hr />
 <%= @versions %>
 <script type="text/javascript">
+
 	let timeEntries = JSON.parse('<%= @time_entries.to_json.html_safe() %>');
 	let issues = JSON.parse('<%= @issues.to_json.html_safe() %>');
 	let users = JSON.parse('<%= @users.to_json.html_safe() %>');
@@ -36,3 +56,4 @@
   userRadarChart.setOption(getUserRadarChart(userRadarData));
 	
 </script>
+<%= javascript_include_tag "app.js", :plugin => 'redmine_insights'%>

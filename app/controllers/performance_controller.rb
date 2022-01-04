@@ -5,19 +5,53 @@ class PerformanceController < ApplicationController
 
   end
 
+  #todo: generate separate controllers for project and project overview
+  #todo: rename routes (index, show, etc..)
   def project
-    projectID = params['project_id']
-    @project = Project.find(projectID)
+    project_id = params['project_id']
+    @project = Project.find(project_id)
+    # read all project related time entries
+    time_entries = TimeEntry.where( :project_id => @project.id)
+   
+    #read all top level issues and related time entries
+    top_level_issues = Issue.where( :project_id => @project.id, :parent_id => nil)
+
+    # iterate though time beam and build 
+    # find first time entry
+    start_time_entry = time_entries.min {|a,b| a.spent_on <=> b.spent_on }
+    #start_date= start_time_entry.spent_on
+    past_weeks = start_time_entry.spent_on.upto(Date.today).count.fdiv(7).ceil
+    time_series = []
+    time_beam_array = time_beam(past_weeks,0)
+    time_beam_array.each_with_index do |time_beam_elm, i|  
+      x_axis_index=i
+      x_axis_caption=time_beam_elm.strftime("%G-W%V") # maybe remove 'W'??
+      x_axis_value=time_beam_elm
+      # work through all top level issues
+       series = []
+       top_level_issues.each_with_index do |issue, j|   
+        related_ids = issue.self_and_descendants.pluck(:id).to_a() # get own and all related issue IDs
+        related_time_entries = time_entries.where(:issue_id => related_ids)
+        serie=Hash.new
+        serie["name"] = issue.subject
+        serie["val"] = related_time_entries.sum { |a| a.hours }
+        series.push(serie)
+      end
+
+
+      puts(series)
+    end
+
+    
     # read all project related time entries
     timeEntries = TimeEntry.where( :project_id => @project.id)
 
     #get involved users
     userIDs = timeEntries.pluck(:user_id).to_a()
     users = User.where(:id => userIDs).to_a()
-    @users = users.map{ |user|  {'userID'=>user.id, "userName"=>user.lastname}}
+    @users = users.map{ |user|  {'userID'=>user.id, "userName"=>user.lastname}} 
 
-    #read all top level issues and related time entries
-    topLevelIssues = Issue.where( :project_id => @project.id, :parent_id => nil)
+    
 
     @time_entries=[]
     topLevelIssues.each do |issue|   
@@ -37,4 +71,19 @@ class PerformanceController < ApplicationController
     versions = Version.where(:project_id => @project.id).to_a()
     @versions = versions.map{|version| {'versionID'=>version.id, 'name'=>version.name, 'effectiveDate'=>version.effective_date, 'status'=>version.status, 'week'=>version.effective_date.cweek, 'year'=>version.effective_date.cwyear}}
   end
+
+
+  # helper functions
+  def moving_average(a, ndays, precision)
+    a.each_cons(ndays).map { |e| e.reduce(&:+).fdiv(ndays).round(precision) }
+  end
+
+  def time_beam(past_weeks, future_weeks=0)
+    result = []
+    for i in past_weeks*-1..future_weeks
+      result.push(Date.today+(i*7))
+    end
+    return result
+  end
+
 end

@@ -10,7 +10,7 @@ function getTimeBeam(pastWeeks, futureWeeks = 0) {
     return result;
 }
 
-// Calculate moving Average
+//Calculate moving Average
 function movingAvg(array, count) {
     const _count = Math.min(count, array.length) * -1;
     const arrayToSum = array.slice(_count);

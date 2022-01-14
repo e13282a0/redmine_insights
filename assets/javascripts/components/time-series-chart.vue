@@ -1,28 +1,29 @@
 <template>
   <v-card width="100%" flat>
-    <v-card-title>
-      <v-row dense no-gutters>
-        <v-col>
-          {{ this.title }}
-        </v-col>
-        <v-col>
-          <v-switch
-            v-model="cumulative"
-            :label="`cumulative: ${cumulative.toString()}`"
-          />
-        </v-col>
-        <v-col>
-          <v-slider
-            v-if="!cumulative"
-            v-model="avgDuration"
-            label="average"
-            min="0"
-            max="20"
-            thumb-label
-          />
-        </v-col>
-      </v-row>
-    </v-card-title>
+    <v-toolbar dense flat>
+      <v-toolbar-title>{{ this.title }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <div>
+        <v-switch
+          v-model="cumulative"
+          :label="`cumulative: ${cumulative.toString()}`"
+        />
+      </div>
+      <v-spacer></v-spacer>
+      <div style="width: 300px">
+        <v-slider
+          v-if="!cumulative"
+          v-model="avgDuration"
+          label="average"
+          min="0"
+          max="50"
+          step="5"
+          thumb-label
+        />
+      </div>
+      <v-spacer></v-spacer>
+    </v-toolbar>
+
     <v-card-text>
       <div style="width: 100%; height: 300px">
         <v-chart autoresize :option="options" />
@@ -138,14 +139,16 @@ module.exports = {
         if (avgStarted) {
           avgCounter += 1;
           result.push(
-            Math.round(this.movingAvg(array.slice(0,i), Math.min(interval, avgCounter)))
+            Math.round(
+              this.movingAvg(array.slice(0, i), Math.min(interval, avgCounter))
+            )
           );
         } else {
           result.push(0);
         }
       }
       return result;
-    }
+    },
   },
 };
 </script>

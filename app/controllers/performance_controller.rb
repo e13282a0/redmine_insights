@@ -19,7 +19,6 @@ class PerformanceController < ApplicationController
     time_beam_array = time_beam(past_weeks,0)
 
     # make series for top level tasks
-
     top_level_issues = Issue.where( :project_id => @project.id, :parent_id => nil)
     @task_series = Hash.new()
     @task_series["items"]=[]
@@ -70,9 +69,25 @@ class PerformanceController < ApplicationController
 
 
 
-    #Versions
+    #versions
     versions = Version.where(:project_id => @project.id).to_a()
     @versions = versions.map{|version| {'versionID'=>version.id, 'name'=>version.name, 'effectiveDate'=>version.effective_date, 'status'=>version.status, 'week'=>version.effective_date.cweek, 'year'=>version.effective_date.cwyear}}
+  
+
+    #marklines
+    mark_lines = []
+    time_beam_array.each_with_index do |time_beam_elm, i|  
+      version = versions.find{|elm| time_beam_elm.cweek== elm.effective_date.cweek and time_beam_elm.cwyear== elm.effective_date.cwyear}
+      #(1..10).find     { |i| i % 5 == 0 and i % 7 == 0 }   #=> nil
+      unless version.nil?
+        mark_line = Hash.new()
+        mark_line["xAxis"]=i
+        mark_line["name"]=version.name
+        mark_lines.push(mark_line)
+      end
+    end
+    @user_series["markLines"]=mark_lines
+    @task_series["markLines"]=mark_lines
   end
 
 

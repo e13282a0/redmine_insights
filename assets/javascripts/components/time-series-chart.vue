@@ -3,7 +3,7 @@
     <v-card-title>
       {{ this.title }}
 
-      
+
       <v-switch
         v-model="cumulative"
         :label="`cumulative: ${cumulative.toString()}`"
@@ -41,6 +41,14 @@ module.exports = {
           emphasis: {
             focus: "series",
           },
+          markLine: {
+                symbol: ['none', 'none'],
+                label: {
+                    formatter: '{b}',
+                    position: 'insideEndTop'
+                },
+                data: _this.series.markLines
+            },
         });
       });
       return result;

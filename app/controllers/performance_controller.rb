@@ -12,59 +12,62 @@ class PerformanceController < ApplicationController
     @project = Project.find(project_id)
     # read all project related time entries
     time_entries = TimeEntry.where( :project_id => @project.id)
-   
-    #read all top level issues and related time entries
-    top_level_issues = Issue.where( :project_id => @project.id, :parent_id => nil)
 
-    # iterate though time beam and build 
     # find first time entry
     start_time_entry = time_entries.min {|a,b| a.spent_on <=> b.spent_on }
-    #start_date= start_time_entry.spent_on
     past_weeks = start_time_entry.spent_on.upto(Date.today).count.fdiv(7).ceil
-    time_series = []
     time_beam_array = time_beam(past_weeks,0)
-    time_beam_array.each_with_index do |time_beam_elm, i|  
-      x_axis_index=i
-      x_axis_caption=time_beam_elm.strftime("%G-W%V") # maybe remove 'W'??
-      x_axis_value=time_beam_elm
-      # work through all top level issues
-       series = []
-       top_level_issues.each_with_index do |issue, j|   
-        related_ids = issue.self_and_descendants.pluck(:id).to_a() # get own and all related issue IDs
-        related_time_entries = time_entries.where(:issue_id => related_ids)
-        serie=Hash.new
-        serie["name"] = issue.subject
-        serie["val"] = related_time_entries.sum { |a| a.hours }
-        series.push(serie)
-      end
 
+    # make series for top level tasks
 
-      puts(series)
-    end
+    top_level_issues = Issue.where( :project_id => @project.id, :parent_id => nil)
+    @task_series = Hash.new()
+    @task_series["items"]=[]
+    @task_series["axis"]=time_beam_array
+    @task_series["data"]=Hash.new()
 
-    
-    # read all project related time entries
-    timeEntries = TimeEntry.where( :project_id => @project.id)
-
-    #get involved users
-    userIDs = timeEntries.pluck(:user_id).to_a()
-    users = User.where(:id => userIDs).to_a()
-    @users = users.map{ |user|  {'userID'=>user.id, "userName"=>user.lastname}} 
-
-    
-
-    @time_entries=[]
-    topLevelIssues.each do |issue|   
-      relatedIDs = issue.self_and_descendants.pluck(:id).to_a() # get own and all related issue IDs
-      relatedTimeEntries = timeEntries.where(:issue_id => relatedIDs)
-      relatedTimeEntries.each do |timeEntry|
-        @time_entries.push({'topLevelID'=>issue.id, 'issueID'=>timeEntry.issue_id, 'userID'=>timeEntry.user_id, 'hours'=>timeEntry.hours, 'comments'=>timeEntry.comments, 'spentOn'=>timeEntry.spent_on, 'week'=>timeEntry.tweek, 'year'=>timeEntry.tyear})
+    top_level_issues.each_with_index do |issue, i|   
+      related_ids = issue.self_and_descendants.pluck(:id).to_a() # get own and all related issue IDs
+      sum=0
+      @task_series["items"].push(issue.subject)
+      @task_series["data"][issue.subject]=[]
+      time_beam_array.each_with_index do |time_beam_elm, j|  
+        related_time_entries = time_entries.where(:issue_id => related_ids, :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+        val = related_time_entries.sum { |a| a.hours }
+        sum+=val
+        entry = Hash.new(time_beam_elm)
+        entry["date"]=time_beam_elm
+        entry["val"]=val
+        entry["sum"]=sum
+        @task_series["data"][issue.subject].push(entry)
       end
     end
 
-    #issues
-    issues = Issue.where(:project_id => @project.id).to_a()
-    @issues = issues.map{ |issue| {'issueID'=>issue.id, 'isTopLevel'=>issue.parent_id.nil?,'subject'=> issue.subject, 'tracker' => issue.tracker, 'startDate'=>issue.start_date, 'dueDate'=>issue.due_date, 'estimatedHours'=>issue.estimated_hours, 'closedOn'=>issue.closed_on, 'parentID'=>issue.parent_id, 'spentHours'=>issue.spent_hours, 'totalSpentHours'=>issue.total_spent_hours}}
+    #make series for uses
+    users_ids = time_entries.pluck(:user_id).to_a()
+    users = User.where(:id => users_ids).to_a()
+
+    @user_series = Hash.new()
+    @user_series["items"]=[]
+    @user_series["axis"]=time_beam_array
+    @user_series["data"]=Hash.new()
+
+    users.each_with_index do |user, i|   
+      sum=0
+      @user_series["items"].push(user["lastname"])
+      @user_series["data"][user["lastname"]]=[]
+      time_beam_array.each_with_index do |time_beam_elm, j|  
+        related_time_entries = time_entries.where(:user_id => user["id"], :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+        val = related_time_entries.sum { |a| a.hours }
+        sum+=val
+        entry = Hash.new(time_beam_elm)
+        entry["date"]=time_beam_elm
+        entry["val"]=val
+        entry["sum"]=sum
+        @user_series["data"][user["lastname"]].push(entry)
+      end
+    end
+
 
 
     #Versions

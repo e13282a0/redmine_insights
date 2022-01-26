@@ -15,7 +15,8 @@ class PerformanceController < ApplicationController
 
     # find first time entry
     start_time_entry = time_entries.min {|a,b| a.spent_on <=> b.spent_on }
-    past_weeks = start_time_entry.spent_on.upto(Date.today).count.fdiv(7).ceil
+    start_date = start_time_entry.spent_on.to_date
+    past_weeks = start_date.upto(Date.today).count.fdiv(7).ceil
     time_beam_array = time_beam(past_weeks,0)
 
     # make series for top level tasks

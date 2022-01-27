@@ -71,7 +71,7 @@ class PerformanceController < ApplicationController
 
 
     #versions
-    versions = Version.where(:project_id => @project.id).to_a()
+    versions = Version.where(:project_id => @project.id).where.not(:effective_date => nil).to_a()
     @versions = versions.map{|version| {'versionID'=>version.id, 'name'=>version.name, 'effectiveDate'=>version.effective_date, 'status'=>version.status, 'week'=>version.effective_date.cweek, 'year'=>version.effective_date.cwyear}}
   
 

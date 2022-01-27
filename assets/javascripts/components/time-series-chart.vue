@@ -2,30 +2,30 @@
   <v-card width="100%" flat>
     <v-toolbar dense flat>
       <v-toolbar-title>{{ this.title }}</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <div style="width: 40px"> </div>
       <div>
-        <v-switch
-          v-model="cumulative"
-          :label="`cumulative: ${cumulative.toString()}`"
-        />
+        <i>Type</i><br>
+        <v-btn-toggle v-model="cumulative" mandatory>
+          <v-btn small :value="false">actual</v-btn>
+          <v-btn small :value="true">cumulative</v-btn>
+        </v-btn-toggle>
       </div>
-      <v-spacer></v-spacer>
-      <div style="width: 300px">
-        <v-slider
-          v-if="!cumulative"
-          v-model="avgDuration"
-          label="average"
-          min="0"
-          max="50"
-          step="5"
-          thumb-label
-        />
+       <div style="width: 40px"> </div>
+      <div v-show="!cumulative">
+        <i>Average (weeks)</i><br>
+        <v-btn-toggle v-model="avgDuration" mandatory>
+          <v-btn small :value="0">off</v-btn>
+          <v-btn small :value="4">4</v-btn>
+          <v-btn small :value="12">12</v-btn>
+          <v-btn small :value="26">26</v-btn>
+          <v-btn small :value="52">52</v-btn>
+        </v-btn-toggle>
       </div>
       <v-spacer></v-spacer>
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 100%; height: 300px">
+      <div style="width: 100%; height: 400px">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -95,7 +95,7 @@ module.exports = {
         },
         grid: {
           left: "3%",
-          right: "200",
+          right: "300",
           bottom: "3%",
           containLabel: true,
         },

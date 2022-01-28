@@ -13,6 +13,9 @@
 			<v-row>
 				<time-series-chart :series="userSeries" title="hours per users"/>
 			</v-row>
+			<v-row>
+				<time-series-chart :series="activitySeries" title="hours per activity"/>
+			</v-row>
 		</v-main>
 	</v-app>
 </div>
@@ -37,6 +40,7 @@
 		data: {
 			userSeries: JSON.parse('<%= @user_series.to_json.html_safe() %>'),
 			taskSeries: JSON.parse('<%= @task_series.to_json.html_safe() %>'),
+			activitySeries: JSON.parse('<%= @activity_series.to_json.html_safe() %>'),
 			versions: JSON.parse('<%= @versions.to_json.html_safe() %>')
 		},
 		vuetify: new Vuetify(),

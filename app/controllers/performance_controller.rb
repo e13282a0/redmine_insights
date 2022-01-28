@@ -68,6 +68,31 @@ class PerformanceController < ApplicationController
       end
     end
 
+     #make series for activities
+     activity_ids = time_entries.pluck(:activity_id).to_a()
+     activities = Enumeration.where(:id => activity_ids).to_a()
+ 
+     @activity_series = Hash.new()
+     @activity_series["items"]=[]
+     @activity_series["axis"]=time_beam_array
+     @activity_series["data"]=Hash.new()
+ 
+     activities.each_with_index do |activity, i|   
+       sum=0
+       @activity_series["items"].push(activity["name"])
+       @activity_series["data"][activity["name"]]=[]
+       time_beam_array.each_with_index do |time_beam_elm, j|  
+         related_time_entries = time_entries.where(:activity_id => activity["id"], :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+         val = related_time_entries.sum { |a| a.hours }
+         sum+=val
+         entry = Hash.new(time_beam_elm)
+         entry["date"]=time_beam_elm
+         entry["val"]=val
+         entry["sum"]=sum
+         @activity_series["data"][activity["name"]].push(entry)
+       end
+     end
+
 
 
     #versions

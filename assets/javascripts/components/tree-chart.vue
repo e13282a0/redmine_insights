@@ -5,7 +5,7 @@
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 80%; height: 400px">
+      <div style="width: 80%; height: 500px">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -40,7 +40,7 @@ module.exports = {
         },
         series: [
           {
-            name: "hours",
+            name: "project",
             type: "treemap",
             visibleMin: 300,
             label: {

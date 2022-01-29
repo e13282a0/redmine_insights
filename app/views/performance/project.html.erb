@@ -16,6 +16,9 @@
 			<v-row>
 				<time-series-chart :series="activitySeries" title="hours per activity"/>
 			</v-row>
+			<v-row>
+				<tree-chart :series="issuesTree" title="issues"/>
+			</v-row>
 		</v-main>
 	</v-app>
 </div>
@@ -35,13 +38,15 @@
 		el: '#app',
 		components: {
 			'is-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/is-chart.vue'),
-			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue')
+			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue'),
+			'tree-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/tree-chart.vue')
 			},
 		data: {
 			userSeries: JSON.parse('<%= @user_series.to_json.html_safe() %>'),
 			taskSeries: JSON.parse('<%= @task_series.to_json.html_safe() %>'),
 			activitySeries: JSON.parse('<%= @activity_series.to_json.html_safe() %>'),
-			versions: JSON.parse('<%= @versions.to_json.html_safe() %>')
+			versions: JSON.parse('<%= @versions.to_json.html_safe() %>'),
+			issuesTree: JSON.parse('<%=  @issues_tree.to_json.html_safe() %>')
 		},
 		vuetify: new Vuetify(),
 		methods: {

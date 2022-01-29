@@ -95,6 +95,11 @@ class PerformanceController < ApplicationController
 
 
 
+     # make tree of tasks
+     @issues_tree = make_nodes(top_level_issues)
+
+
+
     #versions
     versions = Version.where(:project_id => @project.id).where.not(:effective_date => nil).to_a()
     @versions = versions.map{|version| {'versionID'=>version.id, 'name'=>version.name, 'effectiveDate'=>version.effective_date, 'status'=>version.status, 'week'=>version.effective_date.cweek, 'year'=>version.effective_date.cwyear}}
@@ -128,6 +133,24 @@ class PerformanceController < ApplicationController
       result.push(Date.today+(i*7))
     end
     return result
+  end
+
+  def make_nodes(_issues) 
+    result=[]
+    _issues.each_with_index do |_issue, i| 
+      result_elm=Hash.new
+      result_elm["name"]=_issue.subject
+      result_elm["value"]=_issue.total_spent_hours
+      result_elm["assignee"] = _issue.assigned_to.blank? ? nil : User.find(:id => _issue.assigned_to)["lastname"]
+      children = get_child_issues(_issue.id)
+      result_elm["children"] = children.to_a.length > 0 ? make_nodes(children) : []
+      result.push(result_elm)
+    end
+    result
+  end
+
+  def get_child_issues(issue_id) 
+    Issue.where(:parent_id => issue_id)
   end
 
 end

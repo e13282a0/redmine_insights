@@ -47,7 +47,7 @@ module.exports = {
       let result = [];
       this.series.items.forEach(function (item) {
         let selectedData = _this.series.data[item].map((elm) => {
-          return _this.cumulative ? elm.sum : elm.val;
+          return _this.cumulative ? Math.ceil(elm.sum) : Math.ceil(elm.val);
         });
 
         result.push({

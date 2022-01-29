@@ -34,7 +34,7 @@ module.exports = {
               '<div class="tooltip-title">' +
                 formatUtil.encodeHTML(treePath.join("/")) +
                 "</div>",
-              "Disk Usage: " + formatUtil.addCommas(Math.ceil(value)) + " h",
+              "spent time: " + formatUtil.addCommas(Math.ceil(value)) + " h",
             ].join("");
           },
         },

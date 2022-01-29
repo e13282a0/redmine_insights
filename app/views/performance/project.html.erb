@@ -1,7 +1,7 @@
 <% content_for :header_tags do %>
 	<%= javascript_include_tag "includes/echarts.min.js",:plugin => 'redmine_insights'%>
 	<%= javascript_include_tag "includes/moment.min.js", :plugin => 'redmine_insights'%>
-	<%= javascript_include_tag "includes/insights.js", :plugin => 'redmine_insights'%>
+
 <% end %>
 <h2>PerformanceController#project</h2>
 <div id="app">
@@ -17,7 +17,7 @@
 				<time-series-chart :series="activitySeries" title="hours per activity"/>
 			</v-row>
 			<v-row>
-				<tree-chart :series="issuesTree" title="issues"/>
+				<tree-chart :series="issuesTree" title="issue tree map"/>
 			</v-row>
 		</v-main>
 	</v-app>
@@ -37,7 +37,6 @@
 	var app = new Vue({
 		el: '#app',
 		components: {
-			'is-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/is-chart.vue'),
 			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue'),
 			'tree-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/tree-chart.vue')
 			},

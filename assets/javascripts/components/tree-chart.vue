@@ -5,7 +5,7 @@
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 100%; height: 400px">
+      <div style="width: 80%; height: 400px">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -34,7 +34,7 @@ module.exports = {
               '<div class="tooltip-title">' +
                 formatUtil.encodeHTML(treePath.join("/")) +
                 "</div>",
-              "Disk Usage: " + formatUtil.addCommas(value) + " h",
+              "Disk Usage: " + formatUtil.addCommas(Math.ceil(value)) + " h",
             ].join("");
           },
         },
@@ -50,6 +50,10 @@ module.exports = {
             itemStyle: {
               borderColor: "#fff",
             },
+            upperLabel: {
+              show: true,
+              height: 30,
+            },
             levels: this.getLevelOption(),
             data: this.series,
           },
@@ -63,18 +67,30 @@ module.exports = {
       return [
         {
           itemStyle: {
+            borderColor: "#777",
             borderWidth: 0,
-            gapWidth: 5,
+            gapWidth: 1,
+          },
+          upperLabel: {
+            show: false,
           },
         },
         {
           itemStyle: {
+            borderColor: "#555",
+            borderWidth: 5,
             gapWidth: 1,
+          },
+          emphasis: {
+            itemStyle: {
+              borderColor: "#ddd",
+            },
           },
         },
         {
           colorSaturation: [0.35, 0.5],
           itemStyle: {
+            borderWidth: 5,
             gapWidth: 1,
             borderColorSaturation: 0.6,
           },

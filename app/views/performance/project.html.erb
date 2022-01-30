@@ -8,6 +8,9 @@
 	<v-app>
 		<v-main>
 			<v-row>
+				<tree-chart :series="issuesTree" title="issue tree"/>
+			</v-row>
+			<v-row>
 				<time-series-chart :series="taskSeries" title="hours per top level task"/>
 			</v-row>>
 			<v-row>
@@ -17,10 +20,10 @@
 				<time-series-chart :series="activitySeries" title="hours per activity"/>
 			</v-row>
 			<v-row>
-				<treemap-chart :series="issuesTree" title="issue tree map"/>
+				<sunburst-chart :series="issuesTree" title="issue sunburst chart"/>
 			</v-row>
 			<v-row>
-				<sunburst-chart :series="issuesTree" title="issue sunburst chart"/>
+				<treemap-chart :series="issuesTree" title="issue tree map"/>
 			</v-row>
 		</v-main>
 	</v-app>
@@ -42,6 +45,7 @@
 		components: {
 			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue'),
 			'treemap-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/treemap-chart.vue'),
+			'tree-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/tree-chart.vue'),
 			'sunburst-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/sunburst-chart.vue')
 			},
 		data: {

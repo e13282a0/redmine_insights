@@ -22,6 +22,18 @@ module.exports = {
     options() {
       const formatUtil = echarts.format;
       return {
+         toolbox: {
+            show: true,
+            feature: {
+                dataView: {
+                    show: true,
+                    title: 'Data View',
+                    readOnly: false,
+                    lang: ['Data View', 'Close', 'Update']
+                },
+            saveAsImage: { show: true, title: 'Save Image as PNG' }
+            }
+        },
         tooltip: {
           formatter: function (info) {
             var value = info.value;

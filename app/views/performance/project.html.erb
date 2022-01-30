@@ -17,7 +17,7 @@
 				<time-series-chart :series="activitySeries" title="hours per activity"/>
 			</v-row>
 			<v-row>
-				<tree-chart :series="issuesTree" title="issue tree map"/>
+				<treemap-chart :series="issuesTree" title="issue tree map"/>
 			</v-row>
 			<v-row>
 				<sunburst-chart :series="issuesTree" title="issue sunburst chart"/>
@@ -41,7 +41,7 @@
 		el: '#app',
 		components: {
 			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue'),
-			'tree-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/tree-chart.vue'),
+			'treemap-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/treemap-chart.vue'),
 			'sunburst-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/sunburst-chart.vue')
 			},
 		data: {

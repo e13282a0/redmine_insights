@@ -119,6 +119,14 @@ class PerformanceController < ApplicationController
     end
     @user_series["markLines"]=mark_lines
     @task_series["markLines"]=mark_lines
+    @activity_series["markLines"]=mark_lines
+
+
+    @task_series = @task_series.to_json.html_safe
+    @user_series= @user_series.to_json.html_safe
+    @activity_series = @activity_series.to_json.html_safe
+    @issues_tree = @issues_tree.to_json.html_safe
+    @versions = @versions.to_json.html_safe
   end
 
 

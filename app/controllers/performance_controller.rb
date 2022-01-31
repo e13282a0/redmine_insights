@@ -150,6 +150,7 @@ class PerformanceController < ApplicationController
       result_elm["name"]=_issue.subject
       result_elm["value"]=_issue.total_spent_hours
       result_elm["status"]= _issue.status_id.blank? ? nil : IssueStatus.find(_issue.status_id)["name"]
+      result_elm["is_open"]= _issue.status_id.blank? ? true : _issue.status_id < 2
       result_elm["is_closed"]= _issue.status_id.blank? ? nil : IssueStatus.find(_issue.status_id)["is_closed"]
       result_elm["assignee"] = _issue.assigned_to.blank? ? nil : _issue.assigned_to.lastname
       children = get_child_issues(_issue.id)

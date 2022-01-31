@@ -49,11 +49,11 @@
 			'sunburst-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/sunburst-chart.vue')
 			},
 		data: {
-			userSeries: JSON.parse('<%= @user_series.to_json.html_safe() %>'),
-			taskSeries: JSON.parse('<%= @task_series.to_json.html_safe() %>'),
-			activitySeries: JSON.parse('<%= @activity_series.to_json.html_safe() %>'),
-			versions: JSON.parse('<%= @versions.to_json.html_safe() %>'),
-			issuesTree: JSON.parse('<%=  @issues_tree.to_json.html_safe() %>')
+			userSeries: JSON.parse('<%= escape_javascript(@user_series) %>'),
+			taskSeries: JSON.parse('<%= escape_javascript(@task_series) %>'),
+			activitySeries: JSON.parse('<%= escape_javascript(@activity_series) %>'),
+			versions: JSON.parse('<%= escape_javascript(@versions) %>'),
+			issuesTree: JSON.parse('<%= escape_javascript(@issues_tree) %>')
 		},
 		vuetify: new Vuetify(),
 		methods: {

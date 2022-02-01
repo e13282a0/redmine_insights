@@ -96,7 +96,7 @@ module.exports = {
                   //debugger;
                   let style;
                   if (info.data.is_closed) style = "done";
-                  else if (info.data.status === "New") style = "new";
+                  else if (info.data.is_open) style = "new";
                   else style = "progress";
                   //return info.name;
                   return "{" + style + "|" + info.name + "}";

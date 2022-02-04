@@ -4,10 +4,17 @@
       <v-toolbar-title>{{ this.title }}</v-toolbar-title>
       <div style="width: 40px"></div>
       <div>
-        <i>Type</i><br />
         <v-btn-toggle v-model="showClosed" mandatory>
           <v-btn small :value="false">hide closed</v-btn>
           <v-btn small :value="true">show closed</v-btn>
+        </v-btn-toggle>
+      </div>
+      <div style="width: 40px"></div>
+      <div>
+        <v-btn-toggle v-model="autoDepth" >
+          <v-btn small :value=0>1</v-btn>
+          <v-btn small :value=1>2</v-btn>
+          <v-btn small :value=2>3</v-btn>
         </v-btn-toggle>
       </div>
     </v-toolbar>
@@ -26,6 +33,8 @@ module.exports = {
   data() {
     return {
       showClosed: true,
+      autoDepth: 1,
+      revision:0,
     };
   },
   computed: {
@@ -60,8 +69,17 @@ module.exports = {
         //debugger;
         return result;
       }
-      if (this.showClosed) return this.series;
-      else return filterClosed(this.series);
+
+      function autoCollapse(arrNodes, autoDepth, depth=0) {
+        return arrNodes.map(function (node) {
+          node.collapsed = (depth >= autoDepth);
+          node.children = autoCollapse(node.children, autoDepth, depth + 1);
+          console.log(depth+":"+node)
+          return node;
+        });
+      }
+      if (this.showClosed) return autoCollapse(this.series, this.autoDepth);
+      else return autoCollapse(filterClosed(this.series), this.autoDepth);
     },
     options() {
       return {
@@ -81,13 +99,7 @@ module.exports = {
           trigger: "item",
           triggerOn: "mousemove",
           formatter: function (info) {
-            return (
-              info.name +
-              "<br>" +
-              Math.ceil(info.value) +
-              "h <br>" +
-              info.assignee
-            );
+            return info.name + "<br>" + Math.ceil(info.value) + "h";
           },
         },
 

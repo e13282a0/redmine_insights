@@ -19,11 +19,21 @@ module.exports = {
     return {};
   },
   computed: {
+    filteredSeries() {
+      function shortNames(arrNodes) {
+        return arrNodes.map(function (node) {
+          node.name = node.name.replace(/(.{30})..+/, "$1…");
+          return node;
+        });
+      }
+
+      return shortNames(this.series)
+    },
     options() {
       return {
         series: {
           type: "sunburst",
-          data: this.series,
+          data: this.filteredSeries,
           radius: [0, "95%"],
           sort: undefined,
           emphasis: {
@@ -32,8 +42,8 @@ module.exports = {
           levels: [
             {},
             {
-              r0: "30%",
-              r: "45%",
+              r0: "25%",
+              r: "40%",
               itemStyle: {
                 borderWidth: 2,
               },
@@ -42,15 +52,15 @@ module.exports = {
               },
             },
             {
-              r0: "45%",
-              r: "80%",
+              r0: "40%",
+              r: "75%",
               label: {
                 align: "right",
               },
             },
             {
-              r0: "80%",
-              r: "82%",
+              r0: "75%",
+              r: "77%",
               label: {
                 position: "outside",
                 padding: 3,

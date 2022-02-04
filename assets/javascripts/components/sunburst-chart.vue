@@ -5,7 +5,7 @@
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 80%; height: 500px">
+      <div style="width: 80%; height: 100vh">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -32,8 +32,8 @@ module.exports = {
           levels: [
             {},
             {
-              r0: "15%",
-              r: "35%",
+              r0: "30%",
+              r: "45%",
               itemStyle: {
                 borderWidth: 2,
               },
@@ -42,15 +42,15 @@ module.exports = {
               },
             },
             {
-              r0: "35%",
-              r: "70%",
+              r0: "45%",
+              r: "80%",
               label: {
                 align: "right",
               },
             },
             {
-              r0: "70%",
-              r: "72%",
+              r0: "80%",
+              r: "82%",
               label: {
                 position: "outside",
                 padding: 3,

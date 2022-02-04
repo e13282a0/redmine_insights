@@ -19,11 +19,12 @@
 				<time-series-chart :series="activitySeries" title="hours per activity"/>
 			</v-row>
 			<v-row>
-				<sunburst-chart :series="issuesTree" title="issue sunburst chart"/>
-			</v-row>
-			<v-row>
 				<treemap-chart :series="issuesTree" title="issue tree map"/>
 			</v-row>
+			<v-row>
+				<sunburst-chart :series="issuesTree" title="issue sunburst chart"/>
+			</v-row>
+			
 		</v-main>
 	</v-app>
 </div>

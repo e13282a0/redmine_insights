@@ -49,12 +49,6 @@
 			issuesTree: JSON.parse('<%= escape_javascript(@issues_tree) %>')
 		},
 		vuetify: new Vuetify(),
-		methods: {
-			reverseMessage: function () {
-				this.message = this.message.split('').reverse().join('')
-			}
-		}
-
-	})
+		methods: {}
+})
 </script>
-<%= javascript_include_tag "app.js", :plugin => 'redmine_insights'%>

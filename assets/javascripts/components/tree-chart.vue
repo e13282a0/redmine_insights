@@ -59,7 +59,6 @@ module.exports = {
       function filterClosed(arrNodes) {
         let result = [];
         arrNodes.forEach(function (node) {
-          console.log(node);
           if (!node.is_closed) {
             result.push(node);
             if (node.children.length > 0)
@@ -74,7 +73,6 @@ module.exports = {
         return arrNodes.map(function (node) {
           node.collapsed = (depth >= autoDepth);
           node.children = autoCollapse(node.children, autoDepth, depth + 1);
-          console.log(depth+":"+node)
           return node;
         });
       }

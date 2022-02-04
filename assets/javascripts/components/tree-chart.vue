@@ -2,10 +2,18 @@
   <v-card width="100%" flat>
     <v-toolbar dense flat>
       <v-toolbar-title>{{ this.title }}</v-toolbar-title>
+      <div style="width: 40px"></div>
+      <div>
+        <i>Type</i><br />
+        <v-btn-toggle v-model="showClosed" mandatory>
+          <v-btn small :value="false">hide closed</v-btn>
+          <v-btn small :value="true">show closed</v-btn>
+        </v-btn-toggle>
+      </div>
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 80%; height: 600px">
+      <div style="width: 80%; height: 90vh">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -16,7 +24,9 @@
 module.exports = {
   props: ["series", "title"],
   data() {
-    return {};
+    return {
+      showClosed: true,
+    };
   },
   computed: {
     rich() {
@@ -36,6 +46,23 @@ module.exports = {
         },
       };
     },
+    filteredSeries() {
+      function filterClosed(arrNodes) {
+        let result = [];
+        arrNodes.forEach(function (node) {
+          console.log(node);
+          if (!node.is_closed) {
+            result.push(node);
+            if (node.children.length > 0)
+              node.children = filterClosed(node.children);
+          }
+        });
+        //debugger;
+        return result;
+      }
+      if (this.showClosed) return this.series;
+      else return filterClosed(this.series);
+    },
     options() {
       return {
         toolbox: {
@@ -54,15 +81,20 @@ module.exports = {
           trigger: "item",
           triggerOn: "mousemove",
           formatter: function (info) {
-                  
-                  return info.name+"<br>"+Math.ceil(info.value)+"h <br>"+info.assignee;
-                },
+            return (
+              info.name +
+              "<br>" +
+              Math.ceil(info.value) +
+              "h <br>" +
+              info.assignee
+            );
+          },
         },
 
         series: [
           {
             type: "tree",
-            data: [{ name: "", children: this.series }],
+            data: [{ name: "", children: this.filteredSeries }],
             top: "1%",
             left: "7%",
             bottom: "1%",
@@ -75,16 +107,16 @@ module.exports = {
               align: "right",
               fontSize: 9,
               formatter: function (info) {
-                  //if (info.name ==="ert")
-                  //debugger;
-                  let style;
-                  if (info.data.is_closed) style = "done";
-                  else if (info.data.is_open) style = "new";
-                  else style = "progress";
-                  //return info.name;
-                  return "{" + style + "|" + info.name + "}";
-                },
-              rich: this.rich
+                //if (info.name ==="ert")
+                //debugger;
+                let style;
+                if (info.data.is_closed) style = "done";
+                else if (info.data.is_open) style = "new";
+                else style = "progress";
+                //return info.name;
+                return "{" + style + "|" + info.name + "}";
+              },
+              rich: this.rich,
             },
             leaves: {
               label: {
@@ -101,7 +133,7 @@ module.exports = {
                   //return info.name;
                   return "{" + style + "|" + info.name + "}";
                 },
-                rich: this.rich
+                rich: this.rich,
               },
             },
             emphasis: {
@@ -116,9 +148,7 @@ module.exports = {
     },
   },
 
-  methods: {
-    
-  },
+  methods: {},
 };
 </script>
 

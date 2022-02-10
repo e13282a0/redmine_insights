@@ -1,7 +1,88 @@
 class PerformanceController < ApplicationController
 
   def index
-    #@project = Project.find(params[:project_id])
+    time_entries = TimeEntry.where( spent_on: 365.days.ago..Time.now)
+    time_beam_array = time_beam(52,0)
+
+    # make series for users
+    users_ids = time_entries.pluck(:user_id).to_a()
+    users = User.where(:id => users_ids).to_a()
+
+    @user_series = Hash.new()
+    @user_series["items"]=[]
+    @user_series["axis"]=time_beam_array
+    @user_series["data"]=Hash.new()
+
+    users.each_with_index do |user, i|   
+      sum=0
+      @user_series["items"].push(user["lastname"])
+      @user_series["data"][user["lastname"]]=[]
+      time_beam_array.each_with_index do |time_beam_elm, j|  
+        related_time_entries = time_entries.where(:user_id => user["id"], :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+        val = related_time_entries.sum { |a| a.hours }
+        sum+=val
+        entry = Hash.new(time_beam_elm)
+        entry["date"]=time_beam_elm
+        entry["val"]=val
+        entry["sum"]=sum
+        @user_series["data"][user["lastname"]].push(entry)
+      end
+    end
+
+     #make series for activities
+     activity_ids = time_entries.pluck(:activity_id).to_a()
+     activities = Enumeration.where(:id => activity_ids).to_a()
+ 
+     @activity_series = Hash.new()
+     @activity_series["items"]=[]
+     @activity_series["axis"]=time_beam_array
+     @activity_series["data"]=Hash.new()
+ 
+     activities.each_with_index do |activity, i|   
+       sum=0
+       @activity_series["items"].push(activity["name"])
+       @activity_series["data"][activity["name"]]=[]
+       time_beam_array.each_with_index do |time_beam_elm, j|  
+         related_time_entries = time_entries.where(:activity_id => activity["id"], :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+         val = related_time_entries.sum { |a| a.hours }
+         sum+=val
+         entry = Hash.new(time_beam_elm)
+         entry["date"]=time_beam_elm
+         entry["val"]=val
+         entry["sum"]=sum
+         @activity_series["data"][activity["name"]].push(entry)
+       end
+     end
+
+     #make series for projects
+     project_ids = time_entries.pluck(:project_id).to_a()
+     projects = Project.where(:id => project_ids).to_a()
+ 
+     @project_series = Hash.new()
+     @project_series["items"]=[]
+     @project_series["axis"]=time_beam_array
+     @project_series["data"]=Hash.new()
+ 
+     projects.each_with_index do |project, i|   
+       sum=0
+       @project_series["items"].push(project["identifier"])
+       @project_series["data"][project["identifier"]]=[]
+       time_beam_array.each_with_index do |time_beam_elm, j|  
+         related_time_entries = time_entries.where(:project_id => project["id"], :tweek => time_beam_elm.cweek, :tyear=>time_beam_elm.cwyear)
+         val = related_time_entries.sum { |a| a.hours }
+         sum+=val
+         entry = Hash.new(time_beam_elm)
+         entry["date"]=time_beam_elm
+         entry["val"]=val
+         entry["sum"]=sum
+         @project_series["data"][project["identifier"]].push(entry)
+       end
+     end
+
+
+    @user_series= @user_series.to_json.html_safe
+    @activity_series= @activity_series.to_json.html_safe
+    @project_series= @project_series.to_json.html_safe
 
   end
 
@@ -43,7 +124,7 @@ class PerformanceController < ApplicationController
       end
     end
 
-    #make series for uses
+    #make series for users
     users_ids = time_entries.pluck(:user_id).to_a()
     users = User.where(:id => users_ids).to_a()
 
@@ -142,6 +223,7 @@ class PerformanceController < ApplicationController
     end
     return result
   end
+
 
   def make_nodes(_issues) 
     result=[]

@@ -1,1 +1,45 @@
-<h2>PerformanceController#index</h2>
+<% content_for :header_tags do %>
+	<%= javascript_include_tag "includes/echarts.min.js",:plugin => 'redmine_insights'%>
+	<%= javascript_include_tag "includes/moment.min.js", :plugin => 'redmine_insights'%>
+
+<% end %>
+<div id="app">
+	<v-app>
+		<v-main>
+			<v-row>
+				<time-series-chart :series="projectSeries" title="hours per project"/>
+			</v-row>
+			<v-row>
+				<time-series-chart :series="userSeries" title="hours per users"/>
+			</v-row>
+			<v-row>
+				<time-series-chart :series="activitySeries" title="hours per activity" />
+			</v-row>
+		</v-main>
+	</v-app>
+</div>
+<!-- install vue, vuetify and vue-echart -->
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js","https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.min.js"%>
+<%= stylesheet_link_tag "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900", "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css","https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" %>
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/@vue/composition-api@1.0.5","https://cdn.jsdelivr.net/npm/vue-echarts@6.0.0"%>
+<script type="text/javascript">
+	Vue.component("v-chart", VueECharts);
+	var app = new Vue({
+		el: '#app',
+		components: {
+			'time-series-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/time-series-chart.vue'),
+			'treemap-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/treemap-chart.vue'),
+			'tree-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/tree-chart.vue'),
+			'sunburst-chart':httpVueLoader('/plugin_assets/redmine_insights/javascripts/components/sunburst-chart.vue')
+			},
+		data: {
+			userSeries: JSON.parse('<%= escape_javascript(@user_series) %>'),
+			activitySeries: JSON.parse('<%= escape_javascript(@activity_series) %>'),
+			projectSeries: JSON.parse('<%= escape_javascript(@project_series) %>'),
+		},
+		vuetify: new Vuetify(),
+		methods: {}
+
+	})
+</script>
+<%= javascript_include_tag "app.js", :plugin => 'redmine_insights'%>

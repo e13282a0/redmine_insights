@@ -21,11 +21,13 @@
           <v-btn small :value="52">52</v-btn>
         </v-btn-toggle>
       </div>
+
       <v-spacer></v-spacer>
+      
     </v-toolbar>
 
     <v-card-text>
-      <div style="width: 100%; height: 400px">
+      <div style="width: 100%; height: 70vh">
         <v-chart autoresize :option="options" />
       </div>
     </v-card-text>
@@ -87,6 +89,8 @@ module.exports = {
           right: 10,
           top: "center",
           data: this.series.items,
+          itemGap:2,
+          itemHeight:12
         },
         toolbox: {
           feature: {

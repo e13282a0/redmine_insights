@@ -1,7 +1,6 @@
 <% content_for :header_tags do %>
 	<%= javascript_include_tag "includes/echarts.min.js",:plugin => 'redmine_insights'%>
 	<%= javascript_include_tag "includes/moment.min.js", :plugin => 'redmine_insights'%>
-
 <% end %>
 <div id="app">
 	<v-app>
@@ -50,12 +49,6 @@
 			issuesTree: JSON.parse('<%= escape_javascript(@issues_tree) %>')
 		},
 		vuetify: new Vuetify(),
-		methods: {
-			reverseMessage: function () {
-				this.message = this.message.split('').reverse().join('')
-			}
-		}
-
-	})
+		methods: {}
+})
 </script>
-<%= javascript_include_tag "app.js", :plugin => 'redmine_insights'%>

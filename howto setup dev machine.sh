@@ -1,5 +1,7 @@
 #packages
-sudo apt-get install ruby-rubygems mysql-client libmysqlclient-dev ruby-dev git subversion mariadb-server snapd
+sudo apt-get install mysql-client libmysqlclient-dev mariadb-server 
+sudo apt-get install ruby-rubygems ruby-dev git subversion snapd
+sudo apt-get install ubuntu-dev-tools
 
 #get redmine from svn
 svn co https://svn.redmine.org/redmine/branches/4.2-stable redmine-4.2

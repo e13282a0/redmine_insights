@@ -31,11 +31,22 @@ sudo mariadb -e "GRANT ALL PRIVILEGES ON redmine_test.* TO 'redmine'@'localhost'
 #  password: "my_password" 
 #etc...
 
+#configure launch.json
+#{
+#      "name": "Rails server",
+#      "type": "Ruby",
+#      "request": "launch",
+#      "cwd": "${workspaceRoot}",
+#      "program": "${workspaceRoot}/bin/rails",
+#      "args": ["server"]
+#    }
+
 # install bundler and install redmine
 gem install bundler
 bundle install --without development test
 
 #migrate database
+bundle exec rake generate_secret_token
 RAILS_ENV=development bundle exec rake db:migrate
 RAILS_ENV=production bundle exec rake db:migrate
 
